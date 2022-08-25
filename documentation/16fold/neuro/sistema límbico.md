@@ -1,1 +1,0 @@
-![[Back_Cover,_STRESS_R_US.jpg]]![[Blausen_0614_LimbicSystem.png]]
