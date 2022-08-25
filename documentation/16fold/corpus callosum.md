@@ -1,0 +1,5 @@
+la estructura de [[materia blanca]] mas grande que une los [[hemisferios]] del [[cerebro]]
+
+## Correlates of size with handedness
+
+One study reported that the front portion of the human corpus callosum was 0.75 cm2 or 11% larger in [left-handed](https://en.wikipedia.org/wiki/Left-handed "Left-handed") and [ambidextrous](https://en.wikipedia.org/wiki/Ambidextrous "Ambidextrous") people than right-handed people.[[22]](https://en.wikipedia.org/wiki/Corpus_callosum#cite_note-Wit-22)[[23]](https://en.wikipedia.org/wiki/Corpus_callosum#cite_note-23) This difference was evident in the anterior and posterior regions of the corpus callosum, but not in the splenium.[[22]](https://en.wikipedia.org/wiki/Corpus_callosum#cite_note-Wit-22) However, this has been challenged and others have instead suggested that the degree of handedness negatively correlates with the size of the corpus callosum, meaning that individuals who are capable of using both hands with dexterity would have the largest corpus callosum and vice versa for either left or right hand.[[24]](https://en.wikipedia.org/wiki/Corpus_callosum#cite_note-24)

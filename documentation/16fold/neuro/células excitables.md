@@ -1,0 +1,1 @@
+incluye [[neuronas]], celulas de los [[musculos]], celulas endocrinas del [[sistema endocrino]] y otras de algunas plantas.

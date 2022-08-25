@@ -1,0 +1,2 @@
+- [[oxitocina]] - la droga de te hago un bebe mami
+- [[antidiurética]] / vasopresina - regula los fluidos, glucosa y sales. la llamaremos la hormona de sudo, meo y cago.
