@@ -28,7 +28,9 @@
 
             game.InitializeGame();
 
-            
+            //game.Restart(true);
+
+            game.DoAction(2, new TestAction());
         }
     }
 }

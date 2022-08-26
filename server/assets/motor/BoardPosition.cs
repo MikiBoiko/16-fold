@@ -1,3 +1,5 @@
+using System;
+
 namespace Fold {
     public sealed class BoardPosition : IEquatable<BoardPosition> {
         // you can change where the alphabet starts and ends when formating,
@@ -127,5 +129,14 @@ namespace Fold {
 
             return boardPositionArray;
         }
+
+        // returns distance between two positions
+        public static bool AreAdjacent(BoardPosition bp1, BoardPosition bp2) {
+            return MathF.Abs(bp1.x - bp2.x) <= 1 && MathF.Abs(bp1.y - bp2.y) <= 1;
+        }
     }
+
+    #region BoardPosition Exceptions
+    public class NotAdjecentException : Exception { }
+    #endregion
 }

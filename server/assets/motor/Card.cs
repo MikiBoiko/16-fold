@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Fold {
     public enum CardColor {
         red = 0,
@@ -71,13 +73,24 @@ namespace Fold {
 
     public class CardStack {
         private Player _owner;
-        private List<Card> _cards;
 
-        public bool IsHidden { get => _cards.Count == 1; }
+        public Card TopCard { private set; get; }
+        private List<Card> _deadCards;
 
-        public CardStack(Player owner, List<Card> cards) {
+        public bool IsHidden { get => _deadCards.Count == 0; }
+
+        public CardStack(Player owner, Card topCard, List<Card> deadCards) {
             _owner = owner;
-            _cards = cards;
+
+            TopCard = topCard;
+            _deadCards = deadCards;
+        }
+
+        public CardStack(Player owner, Card topCard) {
+            _owner = owner;
+
+            TopCard = topCard;
+            _deadCards = new List<Card>();
         }
 
         public void Defend(Player playerAttacking, List<Card> cardsAttacking) {

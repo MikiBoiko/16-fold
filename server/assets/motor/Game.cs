@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Fold {
     public class Game {
         #region Attributes and constructor
@@ -60,9 +63,19 @@ namespace Fold {
             // Restart it
             Random random = new Random();
             if(sameCards)
-                _board.InitializeBoard(players[0], players[1], positionShuffleSeed: random.Next());
+                _board.InitializeBoard(
+                    players[0], 
+                    players[1], 
+                    positionShuffleSeed: random.Next()
+                );
             else 
-                _board.InitializeBoard(players[0], players[1], positionShuffleSeed: random.Next(), deck: new FrenchDeck(random.Next()));
+                _board.InitializeBoard(
+                    players[0], 
+                    players[1], 
+                    positionShuffleSeed: 
+                    random.Next(), 
+                    deck: new FrenchDeck(random.Next())
+                );
         }
         #endregion
 
@@ -75,10 +88,11 @@ namespace Fold {
         public void DoAction(int playerId, Action action) {
             Player turnPlayer = players[(int)_turnPlayerIndex];
             // Check that it's the players turn
-            if(turnPlayer.id != playerId) 
+            if(turnPlayer.id != playerId) // TODO : add premove
                 throw new NotPlayersTurnException();
 
             action.DoAction(turnPlayer, _board);
+            NextTurn();
         }
         
         public void DoDecision(int playerId, Decision decision) {

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System;
+
 namespace Fold {
     public class Board {
         // size count of the tiles in a board
@@ -28,12 +31,12 @@ namespace Fold {
         );
         
         public void InitializeBoard(Player playerRed, Player playerBlack, int positionShuffleSeed, Deck? deck = null, bool hasJokers = true) {
-            if(_deck == null) {
-                _deck = new FrenchDeck(new Random().Next());
-            }
+            _cards.Clear();
+
+            _deck = deck ?? _deck ?? new FrenchDeck(new Random().Next());
             
             // generate new initial cards if a new deck is sent
-            List<int> initialValues = (deck != null ? deck : _deck).GenerateInitialValues(hasJokers, PLAYER_STARTING_CARDS_COUNT);
+            List<int> initialValues = _deck.GenerateInitialValues(hasJokers, PLAYER_STARTING_CARDS_COUNT);
 
             // Generate random instance with the provided seed
             Random random = new Random(positionShuffleSeed);
@@ -53,21 +56,34 @@ namespace Fold {
                 // create a card for the player
                 NumberCard playerCard = new NumberCard(player.color, initialValue);
                 // add it to the cards
-                playerCards.Add(new CardStack(player, new List<Card>{ playerCard }));
+                playerCards.Add(new CardStack(player, playerCard));
             }
 
             // same with the joker
             Joker playerJokerCard = new Joker(player.color);
-            playerCards.Add(new CardStack(player, new List<Card>{ playerJokerCard }));
+            playerCards.Add(new CardStack(player, playerJokerCard));
 
 
             // randomly initialize player cards into the starting positions...
             for (int i = 0; i < positions.Length; i++)
             {
                 int randomIndex = random.Next(playerCards.Count);
+                Console.WriteLine(String.Format("{0} : {1}", positions[i], playerCards[randomIndex].TopCard.value));
                 _cards.Add(positions[i], playerCards[randomIndex]);
                 playerCards.RemoveAt(randomIndex);
             }
+        }
+
+        
+
+        // returns a dictionary of the board positions, and returns null if the stack is hidden
+        public Dictionary<BoardPosition, CardStack?> GetPosition() {
+            Dictionary<BoardPosition, CardStack?> result = new Dictionary<BoardPosition, CardStack?>();
+            foreach (KeyValuePair<BoardPosition, CardStack> cardStack in _cards)
+            {
+                result.Add(cardStack.Key, cardStack.Value.IsHidden ? null : cardStack.Value);
+            }
+            return result;
         }
     }
 }
