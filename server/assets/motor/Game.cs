@@ -15,11 +15,15 @@ namespace Fold {
         // Time format
         public readonly long time, increment;
 
+        public delegate void OnPlayerWon(GameResolution resolution);
+
         // Current state
         private int _startingTurnPlayerIndex;
         private int _turnCount;
         private int _turnPlayerIndex;
         private GameResolution? _resolution;
+        public bool GameEnded => _resolution != null;
+        public bool GameStarted => _turnCount == 0;
 
         // Constructor
         // Player 1 and 2 instances,
@@ -47,6 +51,7 @@ namespace Fold {
             Random random = new Random();
 
             // Pick who starts
+            _turnCount = 0;
             _turnPlayerIndex = random.Next(PLAYER_COUNT);
 
             // Sets up the board with a deck. 
@@ -56,6 +61,7 @@ namespace Fold {
         // Restarts an already finished game
         public void Restart(bool sameCards) {
             // calculate starting turn
+            _turnCount = 0;
             _turnPlayerIndex = _startingTurnPlayerIndex;
             NextTurn();
             _startingTurnPlayerIndex = _turnPlayerIndex;
@@ -86,7 +92,10 @@ namespace Fold {
         } 
 
         public void DoAction(int playerId, Action action) {
-            Player turnPlayer = players[(int)_turnPlayerIndex];
+            if(GameEnded)
+                throw new GameEndedException();
+
+            Player turnPlayer = players[_turnPlayerIndex];
             // Check that it's the players turn
             if(turnPlayer.id != playerId) // TODO : add premove
                 throw new NotPlayersTurnException();
@@ -96,12 +105,16 @@ namespace Fold {
         }
         
         public void DoDecision(int playerId, Decision decision) {
+            if(GameEnded)
+                throw new GameEndedException();
+
             Player player = GetPlayerById(playerId);
             decision.DoDecision(player, this);
         }
         #endregion
 
-        #region Private methods
+        #region Class methods
+        // TODO : maybe simplifly
         private Player GetPlayerById(int playerId) {
             Player? player = null;
             for (int i = 0; i < PLAYER_COUNT && player == null; i++)
@@ -114,11 +127,33 @@ namespace Fold {
             return player;
         }
         #endregion
+
+        #region Dev
+        public void PrintBoard() {
+            string[,] boardFormatted = new string[4, 7];
+            foreach (KeyValuePair<BoardPosition, CardStack?> stack in _board.GetPosition())
+            {
+                boardFormatted[stack.Key.x, stack.Key.y] = stack.Value != null ? stack.Value.Card.value.ToString("00") : "XX";
+            }
+
+            Console.WriteLine(".----.----.----.----.");
+            for (int y = 0; y < 7; y++) {
+                string line = "| ";
+                for (int x = 0; x < 4; x++)
+                {
+                    line += (boardFormatted[x, y] ?? "  ") + " | ";
+                }
+                Console.WriteLine(line);
+                Console.WriteLine(".----.----.----.----.");
+            }
+        }
+        #endregion
     }
 
     #region Game exceptions
     public class NotPlayersTurnException : Exception { }
     public class PlayerIdNotFoundException : Exception { }
+    public class GameEndedException : Exception { }
     #endregion
 
     #region Game resolutions
@@ -135,7 +170,8 @@ namespace Fold {
             SURRENDER = 1, 
             PASSING = 2,
             MATERIAL = 3, 
-            TIME = 4
+            TIME = 4,
+            ILLEGAL = 5
         }
 
         public Result result;

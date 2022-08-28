@@ -3,12 +3,14 @@ using System.Collections.Generic;
 namespace Fold {
     public enum CardColor {
         red = 0,
-        black = 1
+        black = 1,
+        both = 2
     };
 
-    public struct CardDefenseResult {
+    public struct CardDefense {
         public Card topCard;
-        public bool didDefend;
+        public enum Result { won, lost, draw };
+        public Result result;
     }
 
     public abstract class Card {
@@ -20,22 +22,24 @@ namespace Fold {
             this.value = value;
         }
 
-        public abstract CardDefenseResult Defend(List<Card> cardsAttacking);
+        public abstract CardDefense Defend(List<Card> cardsAttacking);
     }
 
     public class NumberCard : Card {
         public NumberCard(CardColor color, int value) : base(color, value) { }
 
-        public override CardDefenseResult Defend(List<Card> cardsAttacking) {
-            CardDefenseResult result;
+        public override CardDefense Defend(List<Card> cardsAttacking) {
+            CardDefense result;
             result.topCard = this;
-            result.didDefend = true;
+            result.result = CardDefense.Result.won;
 
             int attackValue = 0;
             foreach (Card cardAttacking in cardsAttacking) {
                 attackValue += cardAttacking.value;
-                if(attackValue >= value) {
-                    result.didDefend = false;
+                if(attackValue == value)
+                    result.result = CardDefense.Result.draw;
+                if(attackValue > value) {
+                    result.result = CardDefense.Result.lost;
                     break;
                 }
             }
@@ -47,15 +51,15 @@ namespace Fold {
     public class Joker : Card {
         public Joker(CardColor color) : base(color, 0) { }
 
-        public override CardDefenseResult Defend(List<Card> cardsAttacking) {
-            CardDefenseResult result;
+        public override CardDefense Defend(List<Card> cardsAttacking) {
+            CardDefense result;
             result.topCard = this;
-            result.didDefend = true;
+            result.result = CardDefense.Result.won;
 
             Card cardWithHighestValue = cardsAttacking[0];
             foreach (Card cardAttacking in cardsAttacking) {
                 if(cardAttacking.value == value) {
-                    result.didDefend = false;
+                    result.result = CardDefense.Result.lost;
                     break;
                 }
 
@@ -64,37 +68,34 @@ namespace Fold {
                 }
             }
 
-            if(result.didDefend)
+            if(result.result == CardDefense.Result.won)
                 result.topCard = cardWithHighestValue;
 
             return result;
         }
     }
 
+// TODO : merging with nodes and shit
     public class CardStack {
-        private Player _owner;
+        public static Card ToCard(CardStack stack) => stack.Card;
+        
+        public CardColor OwnerColor { private set; get; }
+        public Card Card { private set; get; }
+        public List<Card> DeadCards { private set; get; } = new List<Card>();
+        public bool IsHidden { get => DeadCards.Count == 0; }
 
-        public Card TopCard { private set; get; }
-        private List<Card> _deadCards;
 
-        public bool IsHidden { get => _deadCards.Count == 0; }
-
-        public CardStack(Player owner, Card topCard, List<Card> deadCards) {
-            _owner = owner;
-
-            TopCard = topCard;
-            _deadCards = deadCards;
+        public CardStack(CardColor color, Card card, List<Card> deadCards) {
+            OwnerColor = color;
+            Card = card;
+            DeadCards = deadCards;
         }
 
-        public CardStack(Player owner, Card topCard) {
-            _owner = owner;
+        public CardDefense Defend(List<Card> cardsAttacking) => Card.Defend(cardsAttacking);
 
-            TopCard = topCard;
-            _deadCards = new List<Card>();
-        }
-
-        public void Defend(Player playerAttacking, List<Card> cardsAttacking) {
-
+        public void MergeUnder(CardStack stack) {
+            DeadCards.Add(stack.Card);
+            DeadCards.AddRange(stack.DeadCards);
         }
     }
 }

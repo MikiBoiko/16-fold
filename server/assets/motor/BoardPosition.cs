@@ -135,8 +135,4 @@ namespace Fold {
             return MathF.Abs(bp1.x - bp2.x) <= 1 && MathF.Abs(bp1.y - bp2.y) <= 1;
         }
     }
-
-    #region BoardPosition Exceptions
-    public class NotAdjecentException : Exception { }
-    #endregion
 }

@@ -28,9 +28,24 @@
 
             game.InitializeGame();
 
-            //game.Restart(true);
-
             game.DoAction(2, new TestAction());
+
+            game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
+
+            game.DoAction(
+                2,
+                new AttackAction(
+                    new List<BoardPosition>{
+                        new BoardPosition("a5"),
+                        new BoardPosition("b5")
+                    }, 
+                    new BoardPosition("a4")
+                )
+            );
+
+            game.PrintBoard();
+            
+            //game.Restart(true);
         }
     }
 }
