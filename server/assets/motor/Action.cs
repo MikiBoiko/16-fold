@@ -7,8 +7,15 @@ namespace Fold {
             didAnIllegalAction: player.color != OnAction(player, board)
         );
     }
-    public class TestAction : Action {
+    public class SeeAction : Action {
+        private BoardPosition _from;
+
+        public SeeAction(BoardPosition from) {
+            _from = from;
+        }
+
         protected override CardColor OnAction(Player player, Board board) {
+            // TODO : implement
             Console.WriteLine("YES");
             return player.color;
         }
@@ -38,7 +45,6 @@ namespace Fold {
         protected override CardColor OnAction(Player player, Board board) => board.CheckForWin(player.color, _from);
     }
 
-// TODO : EMPTY INPUT
     public class AttackAction : Action {
         private List<BoardPosition> _from;
         private BoardPosition _to;

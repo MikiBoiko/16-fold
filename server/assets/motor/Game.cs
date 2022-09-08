@@ -133,10 +133,15 @@ namespace Fold {
             string[,] boardFormatted = new string[4, 7];
             foreach (KeyValuePair<BoardPosition, CardStack?> stack in _board.GetPosition())
             {
-                boardFormatted[stack.Key.x, stack.Key.y] = stack.Value != null ? stack.Value.Card.value.ToString("00") : "XX";
+                if(stack.Value != null) {
+                    string formatedValue = stack.Value.Card.value.ToString("00");
+                    boardFormatted[stack.Key.x, stack.Key.y] = formatedValue != "00" ? formatedValue : "JK";
+                }
+                else
+                    boardFormatted[stack.Key.x, stack.Key.y] = "XX";
             }
 
-            Console.WriteLine(".----.----.----.----.");
+            Console.WriteLine("·----·----·----·----·");
             for (int y = 0; y < 7; y++) {
                 string line = "| ";
                 for (int x = 0; x < 4; x++)
@@ -144,7 +149,7 @@ namespace Fold {
                     line += (boardFormatted[x, y] ?? "  ") + " | ";
                 }
                 Console.WriteLine(line);
-                Console.WriteLine(".----.----.----.----.");
+                Console.WriteLine("·----·----·----·----·");
             }
         }
         #endregion

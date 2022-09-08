@@ -27,9 +27,6 @@
             );
 
             game.InitializeGame();
-
-            game.DoAction(2, new TestAction());
-
             game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
 
             game.DoAction(
@@ -40,6 +37,22 @@
                         new BoardPosition("b5")
                     }, 
                     new BoardPosition("a4")
+                )
+            );
+            game.PrintBoard();
+
+            game.DoAction(1, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
+            game.DoAction(2, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
+            game.DoAction(1, new MoveAction(new BoardPosition("a5"), new BoardPosition("a6")));
+            game.DoAction(2, new SeeAction(new BoardPosition("b6")));
+            game.DoAction(1, new MoveAction(new BoardPosition("a6"), new BoardPosition("a7")));
+            game.DoAction(
+                2,
+                new AttackAction(
+                    new List<BoardPosition>{
+                        new BoardPosition("b7"),
+                    }, 
+                    new BoardPosition("a7")
                 )
             );
 
