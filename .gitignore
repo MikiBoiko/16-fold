@@ -2,3 +2,4 @@ documentation/
 server/obj/
 server/bin/
 server/.vscode/
+.vscode/
