@@ -32,14 +32,13 @@
             game.DoAction(
                 2,
                 new AttackAction(
-                    new List<BoardPosition>{
+                    new List<BoardPosition> {
                         new BoardPosition("a5"),
                         new BoardPosition("b5")
                     }, 
                     new BoardPosition("a4")
                 )
             );
-            game.PrintBoard();
 
             game.DoAction(1, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
             game.DoAction(2, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
@@ -49,16 +48,18 @@
             game.DoAction(
                 2,
                 new AttackAction(
-                    new List<BoardPosition>{
+                    new List<BoardPosition> {
                         new BoardPosition("b7"),
                     }, 
                     new BoardPosition("a7")
                 )
             );
-
             game.PrintBoard();
-            
-            //game.Restart(true);
+            game.DoAction(1, new MoveToWinAction(new BoardPosition("a7")));
+            game.DoAction(2, new SeeAction(new BoardPosition("b6")));
+            game.PrintBoard();
+            game.Restart(true);
+            game.PrintBoard();
         }
     }
 }

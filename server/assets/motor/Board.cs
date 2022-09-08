@@ -9,10 +9,10 @@ namespace Fold {
         // deck used to genereate initial values
         private Deck? _deck;
 
+        // count for the cards
+        private int[] _playerCardStackCount = new int[2];
         // map of the cards in the game where the key is letter(x) + y, BoardPosition format
-        private int _redCards = PLAYER_STARTING_CARDS_COUNT, _blackCards = PLAYER_STARTING_CARDS_COUNT;
         private Dictionary<BoardPosition, CardStack> _cards = new Dictionary<BoardPosition, CardStack>();
-
 
         // starting positions of both players
         private static readonly BoardPosition[] _playerRedStartingPositions = BoardPosition.FormatedPositionStringArrayToBoardPositionArray(
@@ -43,13 +43,15 @@ namespace Fold {
             Random random = new Random(positionShuffleSeed);
 
             // set up players
-            _redCards = _blackCards = PLAYER_STARTING_CARDS_COUNT;
             SetUpPlayer(playerRed, _playerRedStartingPositions, new List<int>(initialValues), ref random);
             SetUpPlayer(playerBlack, _playerBlackStartingPositions, new List<int>(initialValues), ref random);
         }
 
         private void SetUpPlayer(Player player, BoardPosition[] positions, List<int> initialValues, ref Random random) {
-            // instantiate players cards
+            // set player card stack count
+            _playerCardStackCount[(int)player.color] = PLAYER_STARTING_CARDS_COUNT;
+            
+            // instantiate players
             List<CardStack> playerCards = new List<CardStack>();
 
             // for each initial value...
@@ -77,7 +79,7 @@ namespace Fold {
         }
 
         // Moves a card stack from one tile to another
-        public CardColor Move(BoardPosition from, BoardPosition to) {
+        public ActionResolution Move(BoardPosition from, BoardPosition to) {
             if(!IsInbound(to))
                 throw new OutOfBoardPositionException();
 
@@ -88,11 +90,11 @@ namespace Fold {
             CardStack stack = FindCardStack(from);
             _cards.Remove(from);
             _cards.Add(to, stack);
-            return stack.OwnerColor;
+            return new ActionResolution(stack.OwnerColor);
         }
 
         // checks if the card in a position winned
-        public CardColor CheckForWin(CardColor playerColor, BoardPosition position) {
+        public ActionResolution CheckForWin(CardColor playerColor, BoardPosition position) {
             if(!IsInbound(position))
                 throw new OutOfBoardPositionException();
 
@@ -105,10 +107,24 @@ namespace Fold {
                     throw new CardNotCloseToWinningException();
             }
 
-            return FindCardStack(position).OwnerColor;
+            CardStack winingStack = FindCardStack(position); 
+            return new ActionResolution(
+                winingStack.OwnerColor,
+                winingStack.OwnerColor == playerColor ?
+                    new GameResolution(
+                        (GameResolution.Result) playerColor,
+                        GameResolution.Reason.PASSING
+                    )
+                    :
+                    new GameResolution(
+                        (GameResolution.Result) (((int)playerColor + 1) % 2),
+                        GameResolution.Reason.ILLEGAL
+                    )
+            );
         }
 
-        public CardColor Attack(List<BoardPosition> from, BoardPosition to) {
+        public ActionResolution Attack(List<BoardPosition> from, BoardPosition to) {
+            // Find all attacking card stacks
             CardColor? actionColor = null;
             List<CardStack> attackingCardStacks = new List<CardStack>();
             foreach (BoardPosition fromPosition in from)
@@ -121,16 +137,18 @@ namespace Fold {
                 attackingCardStacks.Add(attackingStack);
             }
 
-            CardStack defensingStack = FindCardStack(to);
-            CardDefense defense = defensingStack.Defend(
+            // Defend attack
+            CardStack defendingStack = FindCardStack(to);
+            CardDefense defense = defendingStack.Defend(
                 attackingCardStacks.ConvertAll<Card>(
                     new Converter<CardStack, Card>(CardStack.ToCard)
                 )
             );
 
-            Console.WriteLine(String.Format("Attack: {0}, {1}", defense.topCard.value, defense.result));
+            //Console.WriteLine(String.Format("Attack: {0}, {1}", defense.topCard.value, defense.result));
 
-            bool switchCard = defense.topCard != defensingStack.Card;
+            // Apply the defense result
+            bool switchCard = defense.topCard != defendingStack.Card;
 
             if(defense.result == CardDefense.Result.draw)
                 _cards.Remove(to);
@@ -139,19 +157,45 @@ namespace Fold {
                 if(defense.result != CardDefense.Result.draw) {
                     CardStack attackingStack = _cards[fromPosition];
                     if(switchCard && attackingStack.Card == defense.topCard) {
-                        attackingStack.MergeUnder(defensingStack);
+                        attackingStack.MergeUnder(defendingStack);
                         _cards.Remove(to);
+                        _playerCardStackCount[(int)defendingStack.OwnerColor]--;
                         _cards.Add(to, attackingStack);
                         switchCard = false;
+
                     }
                     else {
-                        defensingStack.MergeUnder(attackingStack);
+                        defendingStack.MergeUnder(attackingStack);
+                        _playerCardStackCount[(int)attackingStack.OwnerColor]--;
                     }
                 }
                 _cards.Remove(fromPosition);
             }
 
-            return actionColor ?? CardColor.both;
+            return new ActionResolution(
+                actionColor ?? CardColor.both,
+                (_playerCardStackCount[0] > 0 && _playerCardStackCount[1] > 0) ?
+                    null
+                :
+                (_playerCardStackCount[0] > 0) ?
+                    new GameResolution(
+                        GameResolution.Result.RED,
+                        GameResolution.Reason.MATERIAL
+                    )
+                :
+                (_playerCardStackCount[1] > 0) ?
+                    new GameResolution(
+                        GameResolution.Result.BLACK,
+                        GameResolution.Reason.MATERIAL
+                    )
+                :
+                new GameResolution(
+                    GameResolution.Result.DRAW,
+                    GameResolution.Reason.MATERIAL
+                )
+            );
+
+
         }
 
         private bool IsInbound(BoardPosition position) => position.x >= 0 && position.x < SIZE_X && position.y >= 0 && position.y < SIZE_Y;
@@ -180,5 +224,17 @@ namespace Fold {
         public class PositionOccupiedException : Exception { }
         public class OutOfBoardPositionException : Exception { }
         public class CardNotCloseToWinningException : Exception {  }
+    #endregion
+
+    #region  Action and decition resolutions
+    public struct ActionResolution {
+        public ActionResolution(CardColor actionColor, GameResolution? resolution = null) {
+            this.actionColor = actionColor;
+            this.resolution = resolution;
+        }
+
+        public CardColor actionColor;
+        public GameResolution? resolution;
+    }
     #endregion
 }

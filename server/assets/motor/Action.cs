@@ -2,10 +2,7 @@ using System;
 
 namespace Fold {
     public abstract class Action {
-        protected abstract CardColor OnAction(Player player, Board board);
-        public void DoAction(Player player, Board board) => player.RegisterAction(
-            didAnIllegalAction: player.color != OnAction(player, board)
-        );
+        public abstract ActionResolution DoAction(Player player, Board board);
     }
     public class SeeAction : Action {
         private BoardPosition _from;
@@ -14,10 +11,9 @@ namespace Fold {
             _from = from;
         }
 
-        protected override CardColor OnAction(Player player, Board board) {
+        public override ActionResolution DoAction(Player player, Board board) {
             // TODO : implement
-            Console.WriteLine("YES");
-            return player.color;
+            return new ActionResolution(player.color);
         }
     }
     public class MoveAction : Action {
@@ -32,7 +28,7 @@ namespace Fold {
             _to = to;
         }
 
-        protected override CardColor OnAction(Player player, Board board) => board.Move(_from, _to);
+        public override ActionResolution DoAction(Player player, Board board) => board.Move(_from, _to);
     }
     
     public class MoveToWinAction : Action {
@@ -42,7 +38,7 @@ namespace Fold {
             _from = from;
         }
         
-        protected override CardColor OnAction(Player player, Board board) => board.CheckForWin(player.color, _from);
+        public override ActionResolution DoAction(Player player, Board board) => board.CheckForWin(player.color, _from);
     }
 
     public class AttackAction : Action {
@@ -51,14 +47,14 @@ namespace Fold {
 
         public AttackAction(List<BoardPosition> from, BoardPosition to) {
             if(from.Count == 0)
-                throw new NoEmptyPositionListException();
+                throw new EmptyPositionListException();
 
             _from = from;
             _to = to;
         }
 
-        protected override CardColor OnAction(Player player, Board board) => board.Attack(_from, _to);
+        public override ActionResolution DoAction(Player player, Board board) => board.Attack(_from, _to);
     }
 
-    public class NoEmptyPositionListException : Exception { }
+    public class EmptyPositionListException : Exception { }
 }

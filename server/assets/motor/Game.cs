@@ -15,8 +15,6 @@ namespace Fold {
         // Time format
         public readonly long time, increment;
 
-        public delegate void OnPlayerWon(GameResolution resolution);
-
         // Current state
         private int _startingTurnPlayerIndex;
         private int _turnCount;
@@ -88,7 +86,8 @@ namespace Fold {
         #region Actions and decisions
         public void NextTurn() {
             _turnCount++;
-            _turnPlayerIndex = (_turnPlayerIndex + 1 == PLAYER_COUNT) ? 0 : _turnPlayerIndex + 1;
+            _turnPlayerIndex++;
+            _turnPlayerIndex %= 2;
         } 
 
         public void DoAction(int playerId, Action action) {
@@ -97,11 +96,34 @@ namespace Fold {
 
             Player turnPlayer = players[_turnPlayerIndex];
             // Check that it's the players turn
+            // FIXME : REMOVE FOR DEV
+            /*
             if(turnPlayer.id != playerId) // TODO : add premove
                 throw new NotPlayersTurnException();
+            */
 
-            action.DoAction(turnPlayer, _board);
-            NextTurn();
+            ActionResolution actionResolution = action.DoAction(turnPlayer, _board);
+            /*
+            if(actionResolution.resolution.HasValue)
+                Console.WriteLine(
+                    String.Format(
+                        "RESULT : {0}, {1}", 
+                        actionResolution.resolution.Value.reason,
+                        actionResolution.resolution.Value.result
+                    )
+                );
+            Console.WriteLine(
+                String.Format(
+                    "COLOR : {0}",
+                    actionResolution.actionColor
+                )
+            );
+            */
+
+            if(actionResolution.resolution.HasValue) {
+                GameResolution = 
+            }
+            else NextTurn();
         }
         
         public void DoDecision(int playerId, Decision decision) {
@@ -181,6 +203,11 @@ namespace Fold {
 
         public Result result;
         public Reason reason;
+
+        public GameResolution(Result result, Reason reason) {
+            this.result = result;
+            this.reason = reason;
+        }
     }
     #endregion
 }
