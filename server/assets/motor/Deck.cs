@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Fold {
+namespace Fold.Motor {
     public abstract class Deck {
         protected readonly int randomSeed;
 

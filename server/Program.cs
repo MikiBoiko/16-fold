@@ -1,4 +1,7 @@
-﻿namespace Fold
+﻿using Fold.Motor;
+using Fold.Socket;
+
+namespace Fold
 {
     class Program
     {
@@ -20,15 +23,23 @@
             */
 
             Game game = new Game(
-                new Player(1, CardColor.red), 
-                new Player(2, CardColor.black), 
+                new Player(1, CardColor.red, 5 * 6000), 
+                new Player(2, CardColor.black, 5 * 6000), 
                 5 * 6000, 
-                3 * 100
+                3 * 100,
+                (GameResolution resolution) => {
+                    Console.WriteLine(
+                        String.Format(
+                            "RESULT : {0}, {1}", 
+                            resolution.reason,
+                            resolution.result
+                        )
+                    );
+                }
             );
-
             game.InitializeGame();
-            game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
 
+            game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
             game.DoAction(
                 2,
                 new AttackAction(
@@ -39,11 +50,13 @@
                     new BoardPosition("a4")
                 )
             );
-
+            game.PrintBoard();
             game.DoAction(1, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
             game.DoAction(2, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
+            game.PrintBoard();
             game.DoAction(1, new MoveAction(new BoardPosition("a5"), new BoardPosition("a6")));
             game.DoAction(2, new SeeAction(new BoardPosition("b6")));
+            game.PrintBoard();
             game.DoAction(1, new MoveAction(new BoardPosition("a6"), new BoardPosition("a7")));
             game.DoAction(
                 2,
@@ -56,10 +69,12 @@
             );
             game.PrintBoard();
             game.DoAction(1, new MoveToWinAction(new BoardPosition("a7")));
-            game.DoAction(2, new SeeAction(new BoardPosition("b6")));
+            //game.DoAction(2, new SeeAction(new BoardPosition("b6")));
             game.PrintBoard();
             game.Restart(true);
             game.PrintBoard();
+
+            Socket.Server.StartGame(game);
         }
     }
 }

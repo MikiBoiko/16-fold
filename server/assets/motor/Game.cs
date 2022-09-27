@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Fold {
+namespace Fold.Motor {
     public class Game {
         #region Attributes and constructor
         public static readonly int PLAYER_COUNT = 2;
@@ -19,14 +19,23 @@ namespace Fold {
         private int _startingTurnPlayerIndex;
         private int _turnCount;
         private int _turnPlayerIndex;
+        public int GameMove => _turnCount / 2;
         private GameResolution? _resolution;
         public bool GameEnded => _resolution != null;
         public bool GameStarted => _turnCount == 0;
+        public delegate void OnPlayerWon(GameResolution resolution);
+        private OnPlayerWon _ProgramOnPlayerWon;
 
         // Constructor
         // Player 1 and 2 instances,
         // time and increment, both in milliseconds
-        public Game(Player playerRed, Player playerBlack, long time, long increment) {
+        public Game(
+            Player playerRed, 
+            Player playerBlack, 
+            long time, 
+            long increment, 
+            OnPlayerWon ProgramOnPlayerWon
+        ) {
             players = new Player[PLAYER_COUNT];
             players[0] = playerRed;
             players[1] = playerBlack;
@@ -35,6 +44,8 @@ namespace Fold {
 
             this.time = time;
             this.increment = increment;
+
+            _ProgramOnPlayerWon = ProgramOnPlayerWon;
         }
         #endregion
 
@@ -58,6 +69,12 @@ namespace Fold {
 
         // Restarts an already finished game
         public void Restart(bool sameCards) {
+            if(!GameEnded)
+                throw new GameDidNotEndException();
+
+            // unset resolution
+            _resolution = null;
+
             // calculate starting turn
             _turnCount = 0;
             _turnPlayerIndex = _startingTurnPlayerIndex;
@@ -84,11 +101,6 @@ namespace Fold {
         #endregion
 
         #region Actions and decisions
-        public void NextTurn() {
-            _turnCount++;
-            _turnPlayerIndex++;
-            _turnPlayerIndex %= 2;
-        } 
 
         public void DoAction(int playerId, Action action) {
             if(GameEnded)
@@ -96,11 +108,9 @@ namespace Fold {
 
             Player turnPlayer = players[_turnPlayerIndex];
             // Check that it's the players turn
-            // FIXME : REMOVE FOR DEV
-            /*
+
             if(turnPlayer.id != playerId) // TODO : add premove
                 throw new NotPlayersTurnException();
-            */
 
             ActionResolution actionResolution = action.DoAction(turnPlayer, _board);
             /*
@@ -119,10 +129,8 @@ namespace Fold {
                 )
             );
             */
-
-            if(actionResolution.resolution.HasValue) {
-                GameResolution = 
-            }
+            if(actionResolution.resolution.HasValue)
+                SetGameResolution(actionResolution.resolution.Value);
             else NextTurn();
         }
         
@@ -136,6 +144,13 @@ namespace Fold {
         #endregion
 
         #region Class methods
+        public void NextTurn() {
+            players[_turnPlayerIndex].StartTurn();
+            _turnCount++;
+            _turnPlayerIndex++;
+            _turnPlayerIndex %= 2;
+        } 
+
         // TODO : maybe simplifly
         private Player GetPlayerById(int playerId) {
             Player? player = null;
@@ -147,6 +162,11 @@ namespace Fold {
                 throw new PlayerIdNotFoundException();
 
             return player;
+        }
+
+        private void SetGameResolution(GameResolution resolution) {
+            _resolution = resolution;
+            _ProgramOnPlayerWon(resolution);
         }
         #endregion
 
@@ -181,6 +201,7 @@ namespace Fold {
     public class NotPlayersTurnException : Exception { }
     public class PlayerIdNotFoundException : Exception { }
     public class GameEndedException : Exception { }
+    public class GameDidNotEndException : Exception { }
     #endregion
 
     #region Game resolutions

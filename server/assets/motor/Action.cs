@@ -1,6 +1,6 @@
 using System;
 
-namespace Fold {
+namespace Fold.Motor {
     public abstract class Action {
         public abstract ActionResolution DoAction(Player player, Board board);
     }
@@ -57,4 +57,16 @@ namespace Fold {
     }
 
     public class EmptyPositionListException : Exception { }
+
+    #region Resolution
+    public struct ActionResolution {
+        public ActionResolution(CardColor actionColor, GameResolution? resolution = null) {
+            this.actionColor = actionColor;
+            this.resolution = resolution;
+        }
+
+        public CardColor actionColor;
+        public GameResolution? resolution;
+    }
+    #endregion
 }

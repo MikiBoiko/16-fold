@@ -1,6 +1,6 @@
 using System;
 
-namespace Fold {
+namespace Fold.Motor {
     public sealed class BoardPosition : IEquatable<BoardPosition> {
         // you can change where the alphabet starts and ends when formating,
         // ex. changing 'a'->'A' to make the system work with upper case,

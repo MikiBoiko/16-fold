@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace Fold {
+namespace Fold.Motor {
     public class Board {
         // size count of the tiles in a board
         public static readonly int SIZE_X = 4, SIZE_Y = 7, PLAYER_STARTING_CARDS_COUNT = 8;
@@ -224,17 +224,5 @@ namespace Fold {
         public class PositionOccupiedException : Exception { }
         public class OutOfBoardPositionException : Exception { }
         public class CardNotCloseToWinningException : Exception {  }
-    #endregion
-
-    #region  Action and decition resolutions
-    public struct ActionResolution {
-        public ActionResolution(CardColor actionColor, GameResolution? resolution = null) {
-            this.actionColor = actionColor;
-            this.resolution = resolution;
-        }
-
-        public CardColor actionColor;
-        public GameResolution? resolution;
-    }
     #endregion
 }
