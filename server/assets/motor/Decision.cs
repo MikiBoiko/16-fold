@@ -17,7 +17,7 @@ namespace Fold.Motor {
 
     public class AddTimeResolution : DecisionResolution {
         private int _id;
-        private long _time;
+        private long _time; 
 
         public AddTimeResolution(int id, long time) {
             if(time <= 0)

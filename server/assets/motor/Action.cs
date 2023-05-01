@@ -12,7 +12,6 @@ namespace Fold.Motor {
         }
 
         public override ActionResolution DoAction(Player player, Board board) {
-            // TODO : implement
             return new ActionResolution(player.color);
         }
     }

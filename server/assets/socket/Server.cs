@@ -30,7 +30,7 @@ namespace Fold.Socket {
 
                 if (Regex.IsMatch(s, "^GET", RegexOptions.IgnoreCase)) {
                     Console.WriteLine("=====Handshaking from client=====\n{0}", s);
-
+                    
                     // 1. Obtain the value of the "Sec-WebSocket-Key" request header without any leading or trailing whitespace
                     // 2. Concatenate it with "258EAFA5-E914-47DA-95CA-C5AB0DC85B11" (a special GUID specified by RFC 6455)
                     // 3. Compute SHA-1 and Base64 hash of the new value
@@ -48,6 +48,9 @@ namespace Fold.Socket {
                         "Sec-WebSocket-Accept: " + swkaSha1Base64 + "\r\n\r\n");
 
                     stream.Write(response, 0, response.Length);
+                    
+                    byte[] messaage = Encoding.ASCII.GetBytes("Hello HELLEN");
+                    stream.Write(messaage, 0, messaage.Length);
                 } else {
                     bool fin = (bytes[0] & 0b10000000) != 0,
                         mask = (bytes[1] & 0b10000000) != 0; // must be true, "All messages from the client to the server have this bit set"
@@ -80,10 +83,9 @@ namespace Fold.Socket {
 
                         string text = Encoding.UTF8.GetString(decoded);
                         Console.WriteLine("{0}", text);
+                        Console.WriteLine("HEY  HEY");
                     } else
                         Console.WriteLine("mask bit not set");
-
-                    Console.WriteLine();
                 }
             }
         }

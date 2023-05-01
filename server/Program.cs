@@ -37,6 +37,7 @@ namespace Fold
                     );
                 }
             );
+
             game.InitializeGame();
 
             game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
@@ -73,8 +74,8 @@ namespace Fold
             game.PrintBoard();
             game.Restart(true);
             game.PrintBoard();
-
-            Socket.Server.StartGame(game);
+            
+            Server.StartGame(game);
         }
     }
 }

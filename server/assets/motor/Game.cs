@@ -83,25 +83,16 @@ namespace Fold.Motor {
 
             // Restart it
             Random random = new Random();
-            if(sameCards)
-                _board.InitializeBoard(
-                    players[0], 
-                    players[1], 
-                    positionShuffleSeed: random.Next()
-                );
-            else 
-                _board.InitializeBoard(
-                    players[0], 
-                    players[1], 
-                    positionShuffleSeed: 
-                    random.Next(), 
-                    deck: new FrenchDeck(random.Next())
-                );
+            _board.InitializeBoard(
+                players[0], 
+                players[1], 
+                positionShuffleSeed: random.Next(),
+                deck: sameCards ? null : new FrenchDeck(random.Next())
+            );
         }
         #endregion
 
         #region Actions and decisions
-
         public void DoAction(int playerId, Action action) {
             if(GameEnded)
                 throw new GameEndedException();
