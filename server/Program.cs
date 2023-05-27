@@ -5,7 +5,7 @@ namespace Fold
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             /*
             Console.WriteLine("Time (in minutes): ");
@@ -23,9 +23,9 @@ namespace Fold
             */
 
             Game game = new Game(
-                new Player(1, CardColor.red, 5 * 6000), 
-                new Player(2, CardColor.black, 5 * 6000), 
-                5 * 6000, 
+                1,
+                2,
+                1000,
                 3 * 100,
                 (GameResolution resolution) => {
                     Console.WriteLine(
@@ -51,10 +51,13 @@ namespace Fold
                     new BoardPosition("a4")
                 )
             );
+
+
             game.PrintBoard();
             game.DoAction(1, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
             game.DoAction(2, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
             game.PrintBoard();
+            await Task.Delay(3000);
             game.DoAction(1, new MoveAction(new BoardPosition("a5"), new BoardPosition("a6")));
             game.DoAction(2, new SeeAction(new BoardPosition("b6")));
             game.PrintBoard();
@@ -74,8 +77,6 @@ namespace Fold
             game.PrintBoard();
             game.Restart(true);
             game.PrintBoard();
-            
-            Server.StartGame(game);
         }
     }
 }

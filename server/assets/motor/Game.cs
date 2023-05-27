@@ -12,9 +12,6 @@ namespace Fold.Motor {
         // Board (contains the cards)
         private Board _board;
 
-        // Time format
-        public readonly long time, increment;
-
         // Current state
         private int _startingTurnPlayerIndex;
         private int _turnCount;
@@ -30,20 +27,31 @@ namespace Fold.Motor {
         // Player 1 and 2 instances,
         // time and increment, both in milliseconds
         public Game(
-            Player playerRed, 
-            Player playerBlack, 
-            long time, 
-            long increment, 
+            int idRed,
+            int idBlack,
+            double interval,
+            double increment,
             OnPlayerWon ProgramOnPlayerWon
         ) {
             players = new Player[PLAYER_COUNT];
-            players[0] = playerRed;
-            players[1] = playerBlack;
+
+            players[0] = new Player(
+                idRed, 
+                CardColor.red, 
+                interval, 
+                increment, 
+                () => SetGameResolution(new GameResolution(GameResolution.Result.BLACK, GameResolution.Reason.TIME))
+            ); 
+
+            players[1] = new Player(
+                idBlack, 
+                CardColor.black, 
+                interval, 
+                increment, 
+                () => SetGameResolution(new GameResolution(GameResolution.Result.RED, GameResolution.Reason.TIME))
+            );
 
             _board = new Board();
-
-            this.time = time;
-            this.increment = increment;
 
             _ProgramOnPlayerWon = ProgramOnPlayerWon;
         }
@@ -98,8 +106,8 @@ namespace Fold.Motor {
                 throw new GameEndedException();
 
             Player turnPlayer = players[_turnPlayerIndex];
+            
             // Check that it's the players turn
-
             if(turnPlayer.id != playerId) // TODO : add premove
                 throw new NotPlayersTurnException();
 
@@ -136,10 +144,11 @@ namespace Fold.Motor {
 
         #region Class methods
         public void NextTurn() {
-            players[_turnPlayerIndex].StartTurn();
+            players[_turnPlayerIndex].EndTurn();
             _turnCount++;
             _turnPlayerIndex++;
             _turnPlayerIndex %= 2;
+            players[_turnPlayerIndex].StartTurn();
         } 
 
         // TODO : maybe simplifly
@@ -157,7 +166,7 @@ namespace Fold.Motor {
 
         private void SetGameResolution(GameResolution resolution) {
             _resolution = resolution;
-            _ProgramOnPlayerWon(resolution);
+            _ProgramOnPlayerWon.Invoke(resolution);
         }
         #endregion
 
