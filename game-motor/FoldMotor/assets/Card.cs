@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Fold.Motor {
     public enum CardColor {
         red = 0,

@@ -1,4 +1,4 @@
-namespace Fold.Motor
+namespace Fold
 {
     public abstract class Decision
     {

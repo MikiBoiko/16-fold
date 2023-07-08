@@ -1,6 +1,6 @@
-using System;
+using Fold.Motor;
 
-namespace Fold.Motor {
+namespace Fold {
     public abstract class Action {
         public abstract ActionResolution DoAction(Player player, Board board);
     }

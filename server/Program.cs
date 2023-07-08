@@ -40,9 +40,9 @@ namespace Fold
 
             game.InitializeGame();
 
-            game.DoAction(1, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
+            game.DoAction(2, new MoveAction(new BoardPosition("a3"), new BoardPosition("a4")));
             game.DoAction(
-                2,
+                1,
                 new AttackAction(
                     new List<BoardPosition> {
                         new BoardPosition("a5"),
@@ -52,18 +52,17 @@ namespace Fold
                 )
             );
 
-
             game.PrintBoard();
-            game.DoAction(1, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
-            game.DoAction(2, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
+            game.DoAction(2, new MoveAction(new BoardPosition("a4"), new BoardPosition("a5")));
+            game.DoAction(1, new MoveAction(new BoardPosition("a7"), new BoardPosition("b6")));
             game.PrintBoard();
-            await Task.Delay(3000);
-            game.DoAction(1, new MoveAction(new BoardPosition("a5"), new BoardPosition("a6")));
-            game.DoAction(2, new SeeAction(new BoardPosition("b6")));
+            //await Task.Delay(3000);
+            game.DoAction(2, new MoveAction(new BoardPosition("a5"), new BoardPosition("a6")));
+            game.DoAction(1, new SeeAction(new BoardPosition("b6")));
             game.PrintBoard();
-            game.DoAction(1, new MoveAction(new BoardPosition("a6"), new BoardPosition("a7")));
+            game.DoAction(2, new MoveAction(new BoardPosition("a6"), new BoardPosition("a7")));
             game.DoAction(
-                2,
+                1,
                 new AttackAction(
                     new List<BoardPosition> {
                         new BoardPosition("b7"),
@@ -71,11 +70,13 @@ namespace Fold
                     new BoardPosition("a7")
                 )
             );
+            game.DoDecision(2, new AddTimeDecision());
+            game.DoDecision(1, new ReportIllegalMoveDecision());
+            game.Restart(true);
+
             game.PrintBoard();
             game.DoAction(1, new MoveToWinAction(new BoardPosition("a7")));
             //game.DoAction(2, new SeeAction(new BoardPosition("b6")));
-            game.PrintBoard();
-            game.Restart(true);
             game.PrintBoard();
         }
     }

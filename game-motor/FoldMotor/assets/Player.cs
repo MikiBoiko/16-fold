@@ -1,6 +1,7 @@
-using System.Timers;
+using Fold.Motor.Timers;
+using Fold.Motor;
 
-namespace Fold.Motor {    
+namespace Fold {    
     public class Player {
         public readonly int id;
         public readonly CardColor color;

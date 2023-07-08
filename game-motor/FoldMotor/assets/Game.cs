@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Fold.Motor;
 
-namespace Fold.Motor {
+namespace Fold {
     public class Game {
         #region Attributes and constructor
         public static readonly int PLAYER_COUNT = 2;

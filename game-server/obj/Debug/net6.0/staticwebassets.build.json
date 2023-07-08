@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "Hash": "LXC2PgAfcTMdLNyj//bQZ5kgLG/XWga2gElSvqDoQtk=",
+  "Source": "game-server",
+  "BasePath": "_content/game-server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "game-server/wwwroot",
+      "Source": "game-server",
+      "ContentRoot": "/home/miki/projects/16fold/game-server/wwwroot/",
+      "BasePath": "_content/game-server",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "/home/miki/projects/16fold/game-server/wwwroot/favicon.ico",
+      "SourceId": "game-server",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/miki/projects/16fold/game-server/wwwroot/",
+      "BasePath": "_content/game-server",
+      "RelativePath": "favicon.ico",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/favicon.ico"
+    }
+  ]
+}

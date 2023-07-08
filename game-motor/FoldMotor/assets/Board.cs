@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System;
-
 namespace Fold.Motor {
     public class Board {
         // size count of the tiles in a board
@@ -220,10 +217,10 @@ namespace Fold.Motor {
     }
 
     #region Board Exceptions
-        public class NotAdjecentException : Exception { }
-        public class NoCardFoundException : Exception { }
-        public class PositionOccupiedException : Exception { }
-        public class OutOfBoardPositionException : Exception { }
-        public class CardNotCloseToWinningException : Exception {  }
+    public class NotAdjecentException : Exception { }
+    public class NoCardFoundException : Exception { }
+    public class PositionOccupiedException : Exception { }
+    public class OutOfBoardPositionException : Exception { }
+    public class CardNotCloseToWinningException : Exception {  }
     #endregion
 }
