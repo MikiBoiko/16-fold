@@ -1,4 +1,4 @@
-namespace FoldServer.Resources;
+namespace Fold.Server.Resources;
 
 public class ChatMessageResource
 {

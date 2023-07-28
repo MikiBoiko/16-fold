@@ -1,10 +1,9 @@
-using Fold;
+using Fold.Motor;
 
-namespace FoldServer.Resources;
+namespace Fold.Server.Resources;
 
 public class ConnectedResource
 {
-    public int Time { set; get; }
-    public int Increment { set; get; }
     public CardColor PlayingColor { set; get; }
+    public Game.State? State { set; get; }
 }

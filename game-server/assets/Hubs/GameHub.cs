@@ -1,54 +1,72 @@
 using Microsoft.AspNetCore.SignalR;
-using Fold;
-using FoldServer.Resources;
+using Fold.Motor;
+using Fold.Motor.Resources.Request;
+using Fold.Motor.Resources.Response;
+using Fold.Server.Resources;
+using Fold.Motor.Resources.Resolution;
 
-namespace FoldServer.Hubs;
+namespace Fold.Server.Hubs;
 
 public class GameHub : Hub
 {
-    private static int s_connectedPlayers = 0; 
-    public static Game? CurrentGame = null;
-
-    protected GameHub() : base()
+    public GameHub() : base()
     {
-        if(CurrentGame == null)
-        {
-            Console.WriteLine("Null game while starting GameHub.");
-            return;
-        }
-
-        CurrentGame.OnGameStarted = (GameInitializationResolution gameStartedResource) => {
-
-        };
+        if (CurrentGame == null)
+            throw new GameNotStartedException();
     }
+
+    #region Player colors
+    private static int s_connectedPlayers = 0;
+    private Dictionary<string, CardColor> connectionColor = new();
 
     private CardColor GetColorFromConnectionId()
     {
-        string connectionId = Context.ConnectionId;
-        return CardColor.none;
+        if (connectionColor.ContainsKey(Context.ConnectionId))
+            return CardColor.none;
+
+        return connectionColor[Context.ConnectionId];
     }
+    #endregion
+
+    #region Game
+    public static Game? CurrentGame { private set; get; }
+
+    public static void GameStarted(GameStartedResponse startedResponse) { }
+    public static void GameEnded(GameEndedResponse endedResponse) { }
+
+    public static void SetUp(double interval = 120000, double increment = 3000)
+    {
+        CurrentGame = new Game(
+            interval,
+            increment,
+            onGameStarted: GameStarted,
+            onGameEnded: GameEnded
+        );
+
+        CurrentGame.Start();
+    }
+
+    #endregion
+
 
     #region Connection
-    public async Task Connect() 
+    public async Task Connect()
     {
-        await Clients.Caller.SendAsync("Connected", s_connectedPlayers > 1 ? CardColor.none : (CardColor) s_connectedPlayers);
-        
-        if(s_connectedPlayers >= 1)
+        if (CurrentGame == null)
         {
-            dev
+            //throw new EmptyMessageContent();
+            await Clients.Caller.SendAsync("RecieveError", "Empty chat message.");
+            return;
         }
-        
+
+        Console.WriteLine(s_connectedPlayers);
+        await Clients.Caller.SendAsync("RecieveConnected", new ConnectedResource
+        {
+            PlayingColor =  (CardColor)(s_connectedPlayers % 2), // s_connectedPlayers > 1 ? CardColor.none : (CardColor)s_connectedPlayers,
+            State = CurrentGame.GetState()
+        });
+
         s_connectedPlayers++;
-    }
-
-    public override Task OnConnectedAsync()
-    {
-        return base.OnConnectedAsync();
-    }
-
-    public override Task OnDisconnectedAsync(Exception? exception)
-    {
-        return base.OnDisconnectedAsync(exception);
     }
     #endregion
 
@@ -58,19 +76,19 @@ public class GameHub : Hub
     public async Task SendMessage(string username, string content)
     {
         bool isShort = content.Length == 0;
-        if(isShort)
+        if (isShort)
         {
             //throw new EmptyMessageContent();
-            await Clients.Caller.SendAsync("Error", "Empty chat message.");
+            await Clients.Caller.SendAsync("RecieveError", "Empty chat message.");
             return;
         }
-        else if(content.Length > MAX_MESSAGE_LENGTH)
+        else if (content.Length > MAX_MESSAGE_LENGTH)
         {
-            await Clients.Caller.SendAsync("Error", "Too long of a message.");
+            await Clients.Caller.SendAsync("RecieveError", "Too long of a message.");
             return;
         }
-        
-        await Clients.All.SendAsync("RecieveMessage", new ChatMessageResource{ Username = username, Content = content });
+
+        await Clients.All.SendAsync("RecieveMessage", new ChatMessageResource { Username = username, Content = content });
     }
     #endregion
 
@@ -79,45 +97,72 @@ public class GameHub : Hub
     {
         CardColor connectionColor = GetColorFromConnectionId();
 
-        if(CurrentGame == null)
-        {
-            //throw new GameNotInitializedException();
-            await Clients.Caller.SendAsync("Error", "Game not instantiated.");
-            return;
-        }
-
-        if((int)connectionColor > 1)
+        if (connectionColor == CardColor.none)
         {
             //throw new NotAPlayerException();
-            await Clients.Caller.SendAsync("Error", "Not a player.");
+            await Clients.Caller.SendAsync("RecieveError", "Not a player.");
             return;
         }
 
         try
         {
+            if (CurrentGame == null)
+                throw new GameNullException("Game is not set in GameHub.");
+
             ActionResolution actionResolution = CurrentGame.DoAction(
                 connectionColor,
-                new MoveAction(
-                    new BoardPosition(from),
-                    new BoardPosition(to)
-                )
+                new ActionRequest
+                {
+                    Type = "Move",
+                    Data = new Dictionary<string, object>
+                    {
+                        { "from", from },
+                        { "to", to }
+                    }
+                }
             );
-            
-            await Clients.All.SendAsync("RecieveMove", from, to);
+
+            await Clients.Caller.SendAsync("RecieveMove", from, to);
         }
         catch (Exception e)
         {
-            await Clients.Caller.SendAsync("Error", "Moving a card. " + e.Source + ": " + e.Message + ". " + e.StackTrace);
+            await Clients.Caller.SendAsync("RecieveError", "Moving a card. " + e.Source + ": " + e.Message + ". " + e.StackTrace);
             return;
         }
+    }
+
+    public async Task SeeAction(string from)
+    {
+        // TODO
+    }
+
+    public async Task PassAction(string from)
+    {
+        // TODO
     }
     #endregion
 
     #region Decisions
+    public async Task ReportIllegalMoveDecision(string from)
+    {
+        // TODO
+    }
 
+    public async Task ResignDecision(string from)
+    {
+        // TODO
+    }
+
+    public async Task AddTimeDecision(string from)
+    {
+        // TODO
+    }
     #endregion
 }
 
+public class GameNullException : Exception
+{
+    public GameNullException(string message) : base(message) {}
+}
 //public class EmptyMessageContent : Exception { }
-//public class GameNotInitializedException : Exception { }
 //public class NotAPlayerException : Exception { }

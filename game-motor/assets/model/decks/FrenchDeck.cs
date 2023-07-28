@@ -1,14 +1,4 @@
-namespace Fold; 
-
-public abstract class Deck {
-    protected readonly int randomSeed;
-
-    public Deck(int randomSeed) {
-        this.randomSeed = randomSeed;
-    }
-
-    public abstract List<int> GenerateInitialValues(bool hasJokers, int playerStartingCardCount);
-}
+namespace Fold.Motor.Model.Decks;
 
 public class FrenchDeck : Deck {
     public FrenchDeck(int randomSeed) : base(randomSeed) { }
@@ -17,7 +7,7 @@ public class FrenchDeck : Deck {
         Random random = new Random(randomSeed);
 
         List<int> initial = new List<int>() {
-            2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 14
+            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27
         };
 
         List<int> initialValues = new List<int>();

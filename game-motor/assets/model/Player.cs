@@ -1,23 +1,25 @@
-using Fold.Motor.Timers;
-using Fold.Motor;
-
-namespace Fold;   
+namespace Fold.Motor.Model;   
   
 public class Player {
-    public readonly int id;
     public readonly CardColor color;
-
+    public readonly string username;
     public PlayerTimer Timer { private set; get; }
     public int ActionCount { private set; get; }
-
     public bool DidAnIllegalAction { private set; get; }
 
-    public Player(int id, CardColor cardColor, double interval, double increment, PlayerTimer.OnTimeLost onTimeLostGameResolution) {
-        this.id = id;
+    public Player(CardColor cardColor, string username, double interval, double increment, PlayerTimer.OnTimeLost onTimeLostGameResolution) {
         this.color = cardColor;
+        this.username = username;
         this.Timer = new PlayerTimer(interval, increment, onTimeLostGameResolution);
 
+        Restart();
+    }
+
+    public void Restart()
+    {
         DidAnIllegalAction = false;
+        ActionCount = 0;
+        Timer.Restart();
     }
 
     public void StartTurn() {
@@ -41,4 +43,20 @@ public class Player {
     public double GetTimeLeft() {
         return Timer.TimeLeft;
     }
+
+    #region State
+    public class State
+    {
+        public string? Username { get; set; }
+        public PlayerTimer.State? PlayerTimerState { get; set; }
+    }
+
+    public State GetState()
+    {
+        return new State {
+            Username = username,
+            PlayerTimerState = Timer.GetState(ActionCount > 0)
+        };
+    }
+    #endregion
 }

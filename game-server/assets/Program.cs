@@ -1,5 +1,5 @@
 // https://ably.com/topic/scaling-signalr
-using FoldServer.Hubs;
+using Fold.Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
@@ -26,15 +26,7 @@ var app = builder.Build();
 
 app.UseCors(WEB_POLICY_NAME);
 
-// Map a new game between two players
-// TODO : extend this into full matches with rematches
-Fold.Game game = new Fold.Game(
-    1, 
-    2,
-    20000,
-    1000
-);
-GameHub.CurrentGame = game;
+GameHub.SetUp();
 app.MapHub<GameHub>("/game");
 
 app.Run();

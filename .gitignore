@@ -1,5 +1,11 @@
 documentation/
-server/obj/
-server/bin/
-server/.vscode/
+
+game-server/obj/
+game-server/bin/
+game-server/.vscode/
+
+game-motor/obj/
+game-motor/bin/
+game-motor/.vscode/
+
 .vscode/

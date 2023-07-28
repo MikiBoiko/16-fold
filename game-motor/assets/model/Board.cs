@@ -1,4 +1,7 @@
-namespace Fold.Motor;
+using Fold.Motor.Resources.Resolution;
+using Fold.Motor.Resources.Response;
+
+namespace Fold.Motor.Model;
 
 public class Board
 {
@@ -34,7 +37,7 @@ public class Board
     {
         _cards.Clear();
 
-        _deck = deck ?? _deck ?? new FrenchDeck(new Random().Next());
+        _deck = deck ?? _deck ?? new Decks.FrenchDeck(new Random().Next());
 
         // generate new initial cards if a new deck is sent
         List<int> initialValues = _deck.GenerateInitialValues(hasJokers, PLAYER_STARTING_CARDS_COUNT);
@@ -61,13 +64,13 @@ public class Board
         foreach (int initialValue in initialValues)
         {
             // create a card for the player
-            NumberCard playerCard = new NumberCard(player.color, initialValue);
+            Cards.NumberCard playerCard = new Cards.NumberCard(player.color, initialValue);
             // add it to the cards
             playerCards.Add(new CardStack(player.color, playerCard, new List<Card>()));
         }
 
         // same with the joker
-        Joker playerJokerCard = new Joker(player.color);
+        Cards.JokerCard playerJokerCard = new Cards.JokerCard(player.color);
         playerCards.Add(new CardStack(player.color, playerJokerCard, new List<Card>()));
 
         // randomly initialize player cards into the starting positions...
@@ -89,15 +92,26 @@ public class Board
         if (_cards.ContainsKey(to))
             throw new PositionOccupiedException();
 
-
         CardStack stack = FindCardStack(from);
         _cards.Remove(from);
         _cards.Add(to, stack);
-        return new ActionResolution(stack.OwnerColor);
+
+        return new ActionResolution
+        {
+            Color = stack.OwnerColor,
+            AllResponse = new Resources.Response.ActionResponse
+            {
+                Type = "Move",
+                Data = new Dictionary<string, object> {
+                    { "from", from.formatedPosition },
+                    { "to", to.formatedPosition }
+                }
+            }
+        };
     }
 
     // checks if the card in a position winned
-    public ActionResolution CheckForPass(CardColor playerColor, BoardPosition position)
+    public ActionResolution Passing(CardColor playerColor, BoardPosition position)
     {
         if (!IsInbound(position))
             throw new OutOfBoardPositionException();
@@ -114,20 +128,23 @@ public class Board
         }
 
         CardStack passingStack = FindCardStack(position);
-        return new ActionResolution(
-            passingStack.OwnerColor,
-            passingStack.OwnerColor == playerColor ?
-                new GameResolution(
-                    playerColor,
-                    GameResolution.Reason.PASSING
-                )
+        return new ActionResolution
+        {
+            Color = passingStack.OwnerColor,
+            GameEndedResponse = passingStack.OwnerColor == playerColor ?
+                new GameEndedResponse
+                {
+                    Way = GameEndedResponse.Reason.PASSING,
+                    Result = playerColor
+                }
                 :
-                new GameResolution(
+                new GameEndedResponse
+                {
                     // TODO : is this a good method to change color? maybe generalize it
-                    (CardColor)(((int)playerColor + 1) % 2),
-                    GameResolution.Reason.REPORT
-                )
-        );
+                    Way = GameEndedResponse.Reason.REPORT,
+                    Result = (CardColor)(((int)playerColor + 1) % 2)
+                }
+        };
     }
 
     public ActionResolution Attack(List<BoardPosition> from, BoardPosition to)
@@ -184,30 +201,68 @@ public class Board
             _cards.Remove(fromPosition);
         }
 
-        return new ActionResolution(
-            actionColor ?? CardColor.both,
-            (_playerCardStackCount[0] > 0 && _playerCardStackCount[1] > 0) ?
+        return new ActionResolution
+        {
+            Color = actionColor ?? CardColor.both,
+            GameEndedResponse = (_playerCardStackCount[0] > 0 && _playerCardStackCount[1] > 0) ?
                 null
             :
             (_playerCardStackCount[0] > 0) ?
-                new GameResolution(
-                    CardColor.red,
-                    GameResolution.Reason.MATERIAL
-                )
+                new GameEndedResponse
+                {
+                    Way = GameEndedResponse.Reason.MATERIAL,
+                    Result = CardColor.red
+                }
                 :
-                (_playerCardStackCount[1] > 0) ?
-                    new GameResolution(
-                        CardColor.black,
-                        GameResolution.Reason.MATERIAL
-                    )
+                _playerCardStackCount[1] > 0 ?
+                    new GameEndedResponse
+                    {
+                        Way = GameEndedResponse.Reason.MATERIAL,
+                        Result = CardColor.black
+                    }
                     :
-                    new GameResolution(
-                        CardColor.both,
-                        GameResolution.Reason.MATERIAL
-                    )
-        );
+                    new GameEndedResponse {
+                        Way = GameEndedResponse.Reason.MATERIAL,
+                        Result = CardColor.both
+                    }
+        };
+    }
 
+    public ActionResolution See(CardColor playerColor, BoardPosition from)
+    {
+        CardStack stack = _cards[from];
 
+        if (!stack.IsHidden)
+            throw new CardNotHiddenException();
+
+        Card card = stack.Card;
+        CardColor cardColor = card.color;
+        int cardValue = card.value;
+
+        return new ActionResolution
+        {
+            Color = playerColor,
+            OwnerResponse = new Resources.Response.ActionResponse
+            {
+                Type = "SeeCard",
+                Data = new Dictionary<string, object>
+                {
+                    { "player", playerColor },
+                    { "position", from.formatedPosition },
+                    { "cardColor", cardColor },
+                    { "cardValue", cardValue }
+                }
+            },
+            AllResponse = new Resources.Response.ActionResponse
+            {
+                Type = "SeenCard",
+                Data = new Dictionary<string, object>
+                {
+                    { "player", playerColor },
+                    { "position", from.formatedPosition }
+                }
+            },
+        };
     }
 
     private bool IsInbound(BoardPosition position) => position.x >= 0 && position.x < SIZE_X && position.y >= 0 && position.y < SIZE_Y;
@@ -230,4 +285,25 @@ public class Board
         }
         return result;
     }
+
+    #region State
+    public class State
+    {
+        public required Dictionary<string, CardStack.State?> CardStackStates { set; get; }
+    }
+
+    public State GetState()
+    {
+        Dictionary<string, CardStack.State?> cardStackStates = new();
+        foreach (BoardPosition stackPosition in _cards.Keys)
+        {
+            cardStackStates.Add(stackPosition.formatedPosition, _cards[stackPosition].GetState());
+        }
+
+        return new State
+        {
+            CardStackStates = cardStackStates
+        };
+    }
+    #endregion
 }

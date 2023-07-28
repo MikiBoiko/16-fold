@@ -1,6 +1,4 @@
-using Fold.Motor;
-
-namespace Fold; 
+namespace Fold.Motor.Model; 
 
 public sealed class BoardPosition : IEquatable<BoardPosition> {
     // you can change where the alphabet starts and ends when formating,
@@ -10,6 +8,7 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
     private static readonly int _baseFormatLetter = 26;
 
     public readonly int x, y;
+    public readonly string formatedPosition;
 
     #region IEquatable
     public override int GetHashCode() {
@@ -25,14 +24,9 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
     }
     #endregion
 
-    // vector-like constructor
-    public BoardPosition(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
-
     // transform formated, ex. "a1", "h23", "az1" to BoardPosition
     public BoardPosition(string formatedPosition) {
+        this.formatedPosition = formatedPosition;
         // we are going to interate through each character
         char[] formatedPositionCharArray = formatedPosition.ToCharArray();
         int charCount = formatedPosition.Length;
