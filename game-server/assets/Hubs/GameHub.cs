@@ -17,14 +17,14 @@ public class GameHub : Hub
 
     #region Player colors
     private static int s_connectedPlayers = 0;
-    private Dictionary<string, CardColor> connectionColor = new();
+    private static Dictionary<string, CardColor> s_connectionColors = new();
 
     private CardColor GetColorFromConnectionId()
     {
-        if (connectionColor.ContainsKey(Context.ConnectionId))
+        if (!s_connectionColors.ContainsKey(Context.ConnectionId))
             return CardColor.none;
 
-        return connectionColor[Context.ConnectionId];
+        return s_connectionColors[Context.ConnectionId];
     }
     #endregion
 
@@ -42,8 +42,6 @@ public class GameHub : Hub
             onGameStarted: GameStarted,
             onGameEnded: GameEnded
         );
-
-        CurrentGame.Start();
     }
 
     #endregion
@@ -54,19 +52,23 @@ public class GameHub : Hub
     {
         if (CurrentGame == null)
         {
-            //throw new EmptyMessageContent();
             await Clients.Caller.SendAsync("RecieveError", "Empty chat message.");
             return;
         }
 
         Console.WriteLine(s_connectedPlayers);
+        CardColor connectionColor = (CardColor)(s_connectedPlayers % 2);
+        s_connectionColors.Add(Context.ConnectionId, connectionColor);
         await Clients.Caller.SendAsync("RecieveConnected", new ConnectedResource
         {
-            PlayingColor =  (CardColor)(s_connectedPlayers % 2), // s_connectedPlayers > 1 ? CardColor.none : (CardColor)s_connectedPlayers,
+            PlayingColor = connectionColor,
             State = CurrentGame.GetState()
         });
 
         s_connectedPlayers++;
+
+        if(s_connectedPlayers == 2)
+            CurrentGame.Start();
     }
     #endregion
 
@@ -93,7 +95,49 @@ public class GameHub : Hub
     #endregion
 
     #region Actions
-    public async Task MoveAction(string from, string to)
+    public async Task DoAction(ActionRequest actionRequest)
+    {
+        CardColor connectionColor = GetColorFromConnectionId();
+
+        if (connectionColor == CardColor.none)
+        {
+            await Clients.Caller.SendAsync("RecieveError", "Not a player.");
+            return;
+        }
+
+        if (CurrentGame == null)
+        {
+            await Clients.Caller.SendAsync("RecieveError", "Game is not loaded in server.");
+            return;
+        }
+
+        if (!CurrentGame.GameStarted || CurrentGame.GameEnded)
+        {
+            await Clients.Caller.SendAsync("Game is not in a playing state.");
+            return;
+        }
+
+        try
+        {
+            ActionResolution actionResolution = CurrentGame.DoAction(
+                connectionColor,
+                actionRequest
+            );
+
+            await Clients.All.SendAsync("Recieve" + actionRequest.Type, actionResolution.AllResponse);
+            if(actionResolution.OwnerResponse != null)
+                await Clients.Caller.SendAsync("RecieveOwner" + actionRequest.Type, actionResolution.OwnerResponse);
+        }
+        catch (Exception e)
+        {
+            await Clients.Caller.SendAsync("RecieveError", "Error doing an action. " + e.Source + ": " + e.Message + ". " + e.StackTrace);
+            return;
+        }
+    }
+    #endregion
+
+    #region Decisions
+    public async Task DoDecision(DecisionRequest decisionRequest)
     {
         CardColor connectionColor = GetColorFromConnectionId();
 
@@ -104,65 +148,47 @@ public class GameHub : Hub
             return;
         }
 
+        if (CurrentGame == null)
+        {
+            await Clients.Caller.SendAsync("RecieveError", "Game is not loaded in server.");
+            return;
+        }
+
+        if (!CurrentGame.GameStarted || CurrentGame.GameEnded)
+        {
+            await Clients.Caller.SendAsync("Game is not in a playing state.");
+            return;
+        }
+
         try
         {
-            if (CurrentGame == null)
-                throw new GameNullException("Game is not set in GameHub.");
-
-            ActionResolution actionResolution = CurrentGame.DoAction(
+            DecisionResolution decisionResolution = CurrentGame.DoDecision(
                 connectionColor,
-                new ActionRequest
+                new DecisionRequest
                 {
-                    Type = "Move",
-                    Data = new Dictionary<string, object>
-                    {
-                        { "from", from },
-                        { "to", to }
-                    }
+                    Type = "ReportIllegal",
+                    Data = new()
                 }
             );
 
-            await Clients.Caller.SendAsync("RecieveMove", from, to);
+            await Clients.Caller.SendAsync("Recieve" + decisionRequest.Type, decisionResolution.Response);
         }
         catch (Exception e)
         {
-            await Clients.Caller.SendAsync("RecieveError", "Moving a card. " + e.Source + ": " + e.Message + ". " + e.StackTrace);
-            return;
+            await Clients.Caller.SendAsync("RecieveError", "Error while doing a decision. " + e.Source + ": " + e.Message + ". " + e.StackTrace);
         }
-    }
-
-    public async Task SeeAction(string from)
-    {
-        // TODO
-    }
-
-    public async Task PassAction(string from)
-    {
-        // TODO
-    }
-    #endregion
-
-    #region Decisions
-    public async Task ReportIllegalMoveDecision(string from)
-    {
-        // TODO
-    }
-
-    public async Task ResignDecision(string from)
-    {
-        // TODO
-    }
-
-    public async Task AddTimeDecision(string from)
-    {
-        // TODO
     }
     #endregion
 }
 
 public class GameNullException : Exception
 {
-    public GameNullException(string message) : base(message) {}
+    public GameNullException(string message) : base(message) { }
+}
+
+public class GameStateException : Exception
+{
+    public GameStateException(string message) : base(message) { }
 }
 //public class EmptyMessageContent : Exception { }
 //public class NotAPlayerException : Exception { }

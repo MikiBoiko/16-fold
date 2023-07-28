@@ -14,7 +14,7 @@ public class AddTimeDecision : Decision
 
         DecisionResponse response = new DecisionResponse {
             Type = "AddTime",
-            Data = new Dictionary<string, object> {
+            Data = new Dictionary<string, object?> {
                 { "color", player.color },
                 { "dueTime", other.Timer.DueTime }
             }

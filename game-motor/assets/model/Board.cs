@@ -102,9 +102,9 @@ public class Board
             AllResponse = new Resources.Response.ActionResponse
             {
                 Type = "Move",
-                Data = new Dictionary<string, object> {
-                    { "from", from.formatedPosition },
-                    { "to", to.formatedPosition }
+                Data = new Dictionary<string, object?> {
+                    { "from", from.ToString() },
+                    { "to", to.ToString() }
                 }
             }
         };
@@ -143,7 +143,16 @@ public class Board
                     // TODO : is this a good method to change color? maybe generalize it
                     Way = GameEndedResponse.Reason.REPORT,
                     Result = (CardColor)(((int)playerColor + 1) % 2)
+                },
+            AllResponse = new ActionResponse
+            {
+                Type = "Passing",
+                Data = new Dictionary<string, object?>{
+                    { "color", passingStack.OwnerColor },
+                    { "from", position.ToString() },
+                    { "card", passingStack.GetState() }
                 }
+            }
         };
     }
 
@@ -221,10 +230,19 @@ public class Board
                         Result = CardColor.black
                     }
                     :
-                    new GameEndedResponse {
+                    new GameEndedResponse
+                    {
                         Way = GameEndedResponse.Reason.MATERIAL,
                         Result = CardColor.both
-                    }
+                    },
+            AllResponse = new ActionResponse
+            {
+                Type = "Attack",
+                Data = new Dictionary<string, object?>
+                {
+
+                }
+            }
         };
     }
 
@@ -244,22 +262,22 @@ public class Board
             Color = playerColor,
             OwnerResponse = new Resources.Response.ActionResponse
             {
-                Type = "SeeCard",
-                Data = new Dictionary<string, object>
+                Type = "See",
+                Data = new Dictionary<string, object?>
                 {
                     { "player", playerColor },
-                    { "position", from.formatedPosition },
+                    { "position", from.ToString() },
                     { "cardColor", cardColor },
                     { "cardValue", cardValue }
                 }
             },
             AllResponse = new Resources.Response.ActionResponse
             {
-                Type = "SeenCard",
-                Data = new Dictionary<string, object>
+                Type = "See",
+                Data = new Dictionary<string, object?>
                 {
                     { "player", playerColor },
-                    { "position", from.formatedPosition }
+                    { "position", from.ToString() }
                 }
             },
         };
@@ -297,7 +315,7 @@ public class Board
         Dictionary<string, CardStack.State?> cardStackStates = new();
         foreach (BoardPosition stackPosition in _cards.Keys)
         {
-            cardStackStates.Add(stackPosition.formatedPosition, _cards[stackPosition].GetState());
+            cardStackStates.Add(stackPosition.ToString(), _cards[stackPosition].GetState());
         }
 
         return new State

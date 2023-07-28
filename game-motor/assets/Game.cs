@@ -29,14 +29,16 @@ public class Game
     private int _turnCount;
     private int _turn;
     public int GameMove => _turnCount / 2;
+    public Player CurrentPlayer => players[_turn];
+    public Player WaitingPlayer => players[(_turn + 1) % 2];
 
     private GameStartedResponse? _startedResponse;
     public bool GameStarted => _startedResponse == null;
     public delegate void OnStartGame(GameStartedResponse initializationResolution);
     public OnStartGame OnGameStarted;
 
-    private GameEndedResponse? _endedResolution;
-    public bool GameEnded => _endedResolution != null;
+    private GameEndedResponse? _endedResponse;
+    public bool GameEnded => _endedResponse != null;
     public delegate void OnEndGame(GameEndedResponse resolution);
     private OnEndGame OnGameEnded;
 
@@ -121,7 +123,7 @@ public class Game
             throw new GameDidNotEndException();
 
         // unset resolution
-        _endedResolution = null;
+        _endedResponse = null;
 
         // calculate starting turn
         _turn = _turn - _turnCount; // TODO check with tests
@@ -163,7 +165,7 @@ public class Game
         if (GameEnded)
             throw new GameEndedException();
 
-        _endedResolution = response;
+        _endedResponse = response;
         OnGameEnded.Invoke(response);
     }
     #endregion
@@ -190,16 +192,19 @@ public class Game
 
         if (resolution.GameEndedResponse != null)
             SetGameEnded(resolution.GameEndedResponse);
-        else NextTurn(didAnIllegalMove: resolution.Color != turnPlayer.color);
+        else NextTurn(resolution);
 
         return resolution;
     }
 
     public DecisionResolution DoDecision(CardColor playerColor, DecisionRequest decisionRequest)
     {
+        if (!GameStarted)
+            throw new GameNotStartedException();
+
         if (GameEnded)
             throw new GameEndedException();
-
+            
         Decision decision = DecisionBuilder.Build(decisionRequest);
 
         DecisionResolution resolution = decision.DoDecision(players[(int)playerColor], this);
@@ -210,9 +215,9 @@ public class Game
     #endregion
 
     #region Class methods
-    public void NextTurn(bool didAnIllegalMove)
+    public void NextTurn(ActionResolution lastMoveActionResolution)
     {
-        players[_turn].EndTurn(didAnIllegalMove);
+        players[_turn].EndTurn(lastMoveActionResolution);
         _turnCount++;
         _turn++;
         _turn %= 2;
@@ -225,15 +230,15 @@ public class Game
     #region State
     public class State
     {
-        public enum Circumstance { WAITING, PLAYING, ENDED }
-        public Circumstance Stage { set; get; }
         public int Turn { set; get; }
         public int TurnCount { set; get; }
-        public int ActionCount { set; get; }
+        public GameStartedResponse? StartedResponse { set; get; }
+        public GameEndedResponse? EndedResponse { set; get; }
         public Player.State? RedPlayerState { set; get; }
         public Player.State? BlackPlayerState { set; get; }
         public Board.State? BoardState { set; get; }
         public DateTime TimeStamp { get; set; }
+        public ActionResponse? LastActionResponse { get; set; }
     }
 
     public State GetState()
@@ -241,18 +246,16 @@ public class Game
         return new State
         {
             Turn = _turn,
-            TurnCount =_turnCount,
-            Stage = GameEnded ?
-                    State.Circumstance.ENDED
-                    :
-                    GameStarted ?
-                    State.Circumstance.PLAYING
-                    :
-                    State.Circumstance.WAITING,
+            TurnCount = _turnCount,
+            StartedResponse = _startedResponse ?? null,
+            EndedResponse = _endedResponse ?? null,
             RedPlayerState = players[0].GetState(),
             BlackPlayerState = players[1].GetState(),
             BoardState = _board.GetState(),
-            TimeStamp = DateTime.Now
+            TimeStamp = DateTime.Now,
+            LastActionResponse = WaitingPlayer.LastActionResolution == null
+                ? null
+                : WaitingPlayer.LastActionResolution.AllResponse ?? null
         };
     }
     #endregion

@@ -1,13 +1,20 @@
-namespace Fold.Motor.Model;   
-  
-public class Player {
+using Fold.Motor.Resources.Resolution;
+
+namespace Fold.Motor.Model;
+
+public class Player
+{
     public readonly CardColor color;
     public readonly string username;
     public PlayerTimer Timer { private set; get; }
     public int ActionCount { private set; get; }
-    public bool DidAnIllegalAction { private set; get; }
+    public ActionResolution? LastActionResolution { private set; get; }
+    public bool DidAnIllegalAction => LastActionResolution == null
+        ? false
+        : LastActionResolution.Color != color;
 
-    public Player(CardColor cardColor, string username, double interval, double increment, PlayerTimer.OnTimeLost onTimeLostGameResolution) {
+    public Player(CardColor cardColor, string username, double interval, double increment, PlayerTimer.OnTimeLost onTimeLostGameResolution)
+    {
         this.color = cardColor;
         this.username = username;
         this.Timer = new PlayerTimer(interval, increment, onTimeLostGameResolution);
@@ -17,46 +24,50 @@ public class Player {
 
     public void Restart()
     {
-        DidAnIllegalAction = false;
         ActionCount = 0;
         Timer.Restart();
     }
 
-    public void StartTurn() {
-        if(ActionCount == 0)
+    public void StartTurn()
+    {
+        if (ActionCount == 0)
             return;
 
         Timer.Enable();
     }
 
-    public void EndTurn(bool didAnIllegalAction) {
-        DidAnIllegalAction = didAnIllegalAction;
-        
+    public void EndTurn(ActionResolution lastActionResolution)
+    {
+        LastActionResolution = lastActionResolution;
+
         ActionCount++;
-        
-        if(ActionCount == 0)
+
+        if (ActionCount == 0)
             return;
 
         Timer.Disable();
     }
 
-    public double GetTimeLeft() {
+    public double GetTimeLeft()
+    {
         return Timer.TimeLeft;
     }
 
     #region State
     public class State
     {
-        public string? Username { get; set; }
-        public PlayerTimer.State? PlayerTimerState { get; set; }
+        public required string Username { get; set; }
+        public required PlayerTimer.State PlayerTimerState { get; set; }
     }
 
     public State GetState()
     {
-        return new State {
+        return new State
+        {
             Username = username,
             PlayerTimerState = Timer.GetState(ActionCount > 0)
         };
     }
+
     #endregion
 }

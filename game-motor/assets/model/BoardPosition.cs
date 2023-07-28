@@ -8,7 +8,7 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
     private static readonly int _baseFormatLetter = 26;
 
     public readonly int x, y;
-    public readonly string formatedPosition;
+    private readonly string _formatedPosition;
 
     #region IEquatable
     public override int GetHashCode() {
@@ -26,7 +26,7 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
 
     // transform formated, ex. "a1", "h23", "az1" to BoardPosition
     public BoardPosition(string formatedPosition) {
-        this.formatedPosition = formatedPosition;
+        this._formatedPosition = formatedPosition;
         // we are going to interate through each character
         char[] formatedPositionCharArray = formatedPosition.ToCharArray();
         int charCount = formatedPosition.Length;
@@ -100,18 +100,7 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
     }
 
     // gets the position formated
-    public override string ToString() {
-        string xFormated = string.Empty;
-        int xIterator = x + 1;
-        while (xIterator > 0)
-        {
-            xFormated = (char)(_startingAlphabetCharacter + xIterator % _baseFormatLetter - 1) + xFormated;
-            xIterator /= _baseFormatLetter;
-        }
-
-        string yFormated = (y + 1).ToString();
-        return xFormated + yFormated;
-    }
+    public override string ToString() => _formatedPosition;
 
     // turn a string array into a board position array
     public static BoardPosition[] FormatedPositionStringArrayToBoardPositionArray(string[] formatedPositionArray, int count) {

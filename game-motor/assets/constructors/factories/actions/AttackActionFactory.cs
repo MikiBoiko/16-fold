@@ -4,7 +4,7 @@ namespace Fold.Motor.Constructors.Factories.Actions;
 
 public class AttackActionFactory : IFactory<Model.Action>
 {
-    public Model.Action Instantiate(Dictionary<string, object> data)
+    public Model.Action Instantiate(Dictionary<string, object?> data)
     {
         if (!data.ContainsKey("from"))
             throw new FactoryParseException("Action request doesn't contain key \"from\".");
@@ -12,7 +12,13 @@ public class AttackActionFactory : IFactory<Model.Action>
         if (!data.ContainsKey("to"))
             throw new FactoryParseException("Action request doesn't contain key \"from\".");
 
-        List<string> fromPositions = (List<string>)data["from"];
+        if (data["from"] == null)
+            throw new ArgumentNullException();
+            
+        if (data["to"] == null)
+            throw new ArgumentNullException();
+
+        List<string> fromPositions = (List<string>)(data["from"] ?? new());
         List<Model.BoardPosition> fromBoardPosition = new();
 
         foreach (string fromPosition in fromPositions)
@@ -22,7 +28,7 @@ public class AttackActionFactory : IFactory<Model.Action>
 
         return new AttackAction(
             fromBoardPosition,
-            new Model.BoardPosition((string)data["to"])
+            new Model.BoardPosition((string)(data["to"] ?? new()))
         );
     }
 }

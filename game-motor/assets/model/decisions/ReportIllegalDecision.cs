@@ -24,8 +24,9 @@ public class ReportIllegalDecision : Decision
         DecisionResponse response = new DecisionResponse
         {
             Type = "ReportIllegal",
-            Data = new Dictionary<string, object> {
-                { "color", player.color }
+            Data = new Dictionary<string, object?> {
+                { "color", player.color },
+                { "result", resolution.Result }
             }
         };
 
