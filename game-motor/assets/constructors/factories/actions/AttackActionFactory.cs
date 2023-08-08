@@ -18,17 +18,17 @@ public class AttackActionFactory : IFactory<Model.Action>
         if (data["to"] == null)
             throw new ArgumentNullException();
 
-        List<string> fromPositions = (List<string>)(data["from"] ?? new());
+        object[] fromPositions = (object[])(data["from"] ?? new());
         List<Model.BoardPosition> fromBoardPosition = new();
 
         foreach (string fromPosition in fromPositions)
         {
-            fromBoardPosition.Add(new Model.BoardPosition(fromPosition));
+            fromBoardPosition.Add(new Model.BoardPosition(fromPosition.ToString()));
         }
 
         return new AttackAction(
             fromBoardPosition,
-            new Model.BoardPosition((string)(data["to"] ?? new()))
+            new Model.BoardPosition((data["to"] ?? new()).ToString())
         );
     }
 }

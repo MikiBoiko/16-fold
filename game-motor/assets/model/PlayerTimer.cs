@@ -43,15 +43,25 @@ public class PlayerTimer
 
     public void Disable() 
     {
-        _timer.Enabled = false;
-        _timer.Interval = TimeLeft + increment;
+        if(_timer.Enabled)
+        {
+            _timer.Enabled = false;
+            _timer.Interval = TimeLeft + increment;
+        }
         DueTime = DateTime.Now.AddMilliseconds(_timer.Interval);
     }
 
     public void AddTime(double increment) 
     {
-        _timer.Enabled = false;
-        _timer.Interval = TimeLeft + increment;
+        if(_timer.Enabled)
+        {
+            _timer.Enabled = false;
+            _timer.Interval = TimeLeft + increment;
+        }
+        else 
+        {
+            _timer.Interval += increment;
+        }
         DueTime = DateTime.Now.AddMilliseconds(_timer.Interval);
         _timer.Enabled = true;
     }

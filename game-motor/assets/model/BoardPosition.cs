@@ -25,7 +25,10 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
     #endregion
 
     // transform formated, ex. "a1", "h23", "az1" to BoardPosition
-    public BoardPosition(string formatedPosition) {
+    public BoardPosition(string? formatedPosition) {
+        if(formatedPosition == null)
+            throw new NullReferenceException();
+
         this._formatedPosition = formatedPosition;
         // we are going to interate through each character
         char[] formatedPositionCharArray = formatedPosition.ToCharArray();
@@ -116,6 +119,7 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
 
     // returns distance between two positions
     public static bool AreAdjacent(BoardPosition bp1, BoardPosition bp2) {
+        if(bp1 == bp2) return false;
         return MathF.Abs(bp1.x - bp2.x) <= 1 && MathF.Abs(bp1.y - bp2.y) <= 1;
     }
 }

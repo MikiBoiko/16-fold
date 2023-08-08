@@ -40,12 +40,11 @@ public class Player
     {
         LastActionResolution = lastActionResolution;
 
+
+        if (ActionCount > 0)
+            Timer.Disable();
+        
         ActionCount++;
-
-        if (ActionCount == 0)
-            return;
-
-        Timer.Disable();
     }
 
     public double GetTimeLeft()

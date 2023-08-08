@@ -43,9 +43,7 @@ public class GameHub : Hub
             onGameEnded: GameEnded
         );
     }
-
     #endregion
-
 
     #region Connection
     public async Task Connect()
@@ -56,7 +54,9 @@ public class GameHub : Hub
             return;
         }
 
-        Console.WriteLine(s_connectedPlayers);
+        if (s_connectedPlayers == 1)
+            CurrentGame.Start();
+
         CardColor connectionColor = (CardColor)(s_connectedPlayers % 2);
         s_connectionColors.Add(Context.ConnectionId, connectionColor);
         await Clients.Caller.SendAsync("RecieveConnected", new ConnectedResource
@@ -66,9 +66,6 @@ public class GameHub : Hub
         });
 
         s_connectedPlayers++;
-
-        if(s_connectedPlayers == 2)
-            CurrentGame.Start();
     }
     #endregion
 
@@ -97,6 +94,7 @@ public class GameHub : Hub
     #region Actions
     public async Task DoAction(ActionRequest actionRequest)
     {
+        Console.WriteLine("Doing action: " + actionRequest.Type);
         CardColor connectionColor = GetColorFromConnectionId();
 
         if (connectionColor == CardColor.none)
@@ -113,7 +111,7 @@ public class GameHub : Hub
 
         if (!CurrentGame.GameStarted || CurrentGame.GameEnded)
         {
-            await Clients.Caller.SendAsync("Game is not in a playing state.");
+            await Clients.Caller.SendAsync("RecieveError", "Game is not in a playing state.");
             return;
         }
 
@@ -125,7 +123,7 @@ public class GameHub : Hub
             );
 
             await Clients.All.SendAsync("Recieve" + actionRequest.Type, actionResolution.AllResponse);
-            if(actionResolution.OwnerResponse != null)
+            if (actionResolution.OwnerResponse != null)
                 await Clients.Caller.SendAsync("RecieveOwner" + actionRequest.Type, actionResolution.OwnerResponse);
         }
         catch (Exception e)
@@ -139,6 +137,7 @@ public class GameHub : Hub
     #region Decisions
     public async Task DoDecision(DecisionRequest decisionRequest)
     {
+        Console.WriteLine("Doing decision: " + decisionRequest.Type);
         CardColor connectionColor = GetColorFromConnectionId();
 
         if (connectionColor == CardColor.none)
@@ -156,7 +155,7 @@ public class GameHub : Hub
 
         if (!CurrentGame.GameStarted || CurrentGame.GameEnded)
         {
-            await Clients.Caller.SendAsync("Game is not in a playing state.");
+            await Clients.Caller.SendAsync("RecieveError", "Game is not in a playing state.");
             return;
         }
 
@@ -164,11 +163,7 @@ public class GameHub : Hub
         {
             DecisionResolution decisionResolution = CurrentGame.DoDecision(
                 connectionColor,
-                new DecisionRequest
-                {
-                    Type = "ReportIllegal",
-                    Data = new()
-                }
+                decisionRequest
             );
 
             await Clients.Caller.SendAsync("Recieve" + decisionRequest.Type, decisionResolution.Response);

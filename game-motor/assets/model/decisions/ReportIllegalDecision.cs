@@ -30,6 +30,8 @@ public class ReportIllegalDecision : Decision
             }
         };
 
+        Console.WriteLine("Creating add time...");
+
         return new DecisionResolution
         {
             Color = player.color,

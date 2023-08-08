@@ -33,7 +33,7 @@ public class Game
     public Player WaitingPlayer => players[(_turn + 1) % 2];
 
     private GameStartedResponse? _startedResponse;
-    public bool GameStarted => _startedResponse == null;
+    public bool GameStarted => _startedResponse != null;
     public delegate void OnStartGame(GameStartedResponse initializationResolution);
     public OnStartGame OnGameStarted;
 
