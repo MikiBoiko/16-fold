@@ -31,16 +31,22 @@ public class GameHub : Hub
     #region Game
     public static Game? CurrentGame { private set; get; }
 
-    public static void GameStarted(GameStartedResponse startedResponse) { }
-    public static void GameEnded(GameEndedResponse endedResponse) { }
-
-    public static void SetUp(double interval = 120000, double increment = 3000)
+    public static void SetUp(IHubContext<GameHub>? context, double interval = 1200000, double increment = 3000)
     {
+        if(context == null)
+        {
+            throw new NoContextContent();
+        }
+
         CurrentGame = new Game(
             interval,
             increment,
-            onGameStarted: GameStarted,
-            onGameEnded: GameEnded
+            onGameStarted: (GameStartedResponse response) => {
+                context.Clients.All.SendAsync("RecieveGameStarted", response);
+            },
+            onGameEnded: (GameEndedResponse response) => {
+                context.Clients.All.SendAsync("RecieveGameEnded", response);
+            }
         );
     }
     #endregion
@@ -72,7 +78,7 @@ public class GameHub : Hub
     #region Chat
     private static readonly int MAX_MESSAGE_LENGTH = 300;
 
-    public async Task SendMessage(string username, string content)
+    public async Task SendMessage(string content)
     {
         bool isShort = content.Length == 0;
         if (isShort)
@@ -87,7 +93,7 @@ public class GameHub : Hub
             return;
         }
 
-        await Clients.All.SendAsync("RecieveMessage", new ChatMessageResource { Username = username, Content = content });
+        await Clients.All.SendAsync("RecieveMessage", new ChatMessageResource { Username = GetColorFromConnectionId() == CardColor.red ? "RED" : "BLACK", Content = content });
     }
     #endregion
 
@@ -185,5 +191,7 @@ public class GameStateException : Exception
 {
     public GameStateException(string message) : base(message) { }
 }
+
+public class NoContextContent : Exception { }
 //public class EmptyMessageContent : Exception { }
 //public class NotAPlayerException : Exception { }

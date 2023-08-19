@@ -1,0 +1,19 @@
+.App {
+  width: 100vw;
+  height: 100vh;
+
+  background-color: var(--background-color);
+  color: var(--font-color);
+
+  --navbar-height: 2.25rem;
+}
+
+.App-content {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  height: calc(100% - var(--navbar-height));
+  padding-top: var(--navbar-height);
+  overflow-y: auto;
+}

@@ -14,13 +14,14 @@ public class PlayerTimer
 
     public PlayerTimer(double interval, double increment, OnTimeLost onTimeLostGameResolution)
     {
+        this.interval = interval;
+        this.increment = increment;
+
         _timer = new System.Timers.Timer(interval);
         _timer.AutoReset = false;
         _timer.Elapsed += ( sender, e ) => { OnTimeLostEvent?.Invoke(); };
 
-        this.interval = interval;
-        this.increment = increment;
-
+        DueTime = DateTime.Now.AddMilliseconds(interval);
         OnTimeLostEvent += onTimeLostGameResolution;
     }
 
@@ -38,6 +39,7 @@ public class PlayerTimer
 
     public void Enable()
     {
+        DueTime = DateTime.Now.AddMilliseconds(_timer.Interval);
         _timer.Enabled = true;
     }
 
@@ -48,7 +50,6 @@ public class PlayerTimer
             _timer.Enabled = false;
             _timer.Interval = TimeLeft + increment;
         }
-        DueTime = DateTime.Now.AddMilliseconds(_timer.Interval);
     }
 
     public void AddTime(double increment) 

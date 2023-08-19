@@ -12,7 +12,8 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
 
     #region IEquatable
     public override int GetHashCode() {
-        return Board.SIZE_Y * y + x;
+        Console.WriteLine(String.Format("{0}: {1}", _formatedPosition, Board.SIZE_X * y + x));
+        return Board.SIZE_X * y + x;
     }
 
     public override bool Equals(object? other) {

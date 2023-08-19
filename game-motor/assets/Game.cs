@@ -188,6 +188,7 @@ public class Game
         Model.Action action = ActionBuilder.Build(actionRequest);
 
         ActionResolution resolution = action.DoAction(turnPlayer, _board);
+        resolution.AllResponse.TimeStamp = DateTime.Now;
         resolution.Request = actionRequest;
 
         if (resolution.GameEndedResponse != null)
@@ -208,6 +209,7 @@ public class Game
         Decision decision = DecisionBuilder.Build(decisionRequest);
 
         DecisionResolution resolution = decision.DoDecision(players[(int)playerColor], this);
+        resolution.Response.TimeStamp = DateTime.Now;
         resolution.Request = decisionRequest;
 
         return resolution;

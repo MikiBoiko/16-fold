@@ -1,5 +1,6 @@
 // https://ably.com/topic/scaling-signalr
 using Fold.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
@@ -10,7 +11,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(
         name: WEB_POLICY_NAME,
-        policy  =>
+        policy =>
         {
             policy.WithOrigins("http://localhost:3000/")
                 .AllowAnyHeader()
@@ -23,10 +24,16 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-
 app.UseCors(WEB_POLICY_NAME);
 
-GameHub.SetUp();
 app.MapHub<GameHub>("/game");
 
+SetUpGame(app);
+
 app.Run();
+
+static void SetUpGame(WebApplication app)
+{
+    IHubContext<GameHub>? context = (IHubContext<GameHub>?)app.Services.GetService(typeof(IHubContext<GameHub>));
+    GameHub.SetUp(context);
+}

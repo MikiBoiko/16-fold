@@ -11,12 +11,11 @@ public class GameEndedResponse
     public enum Reason
     {
         AGREED = 0,
-        RESIGN = 1,
-        PASSING = 2,
-        MATERIAL = 3,
-        TIME = 4,
-        REPORT = 5,
-        ILLEGAL = 6
+        PASSING = 1,
+        MATERIAL = 2,
+        TIME = 3,
+        REPORT = 4,
+        ILLEGAL = 5
     }
 
     public Reason Way { set; get; }

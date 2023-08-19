@@ -1,0 +1,48 @@
+.Tile {
+  aspect-ratio: 1.25;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Tile[handness="even"] {
+  background-color: var(--tile-odd-color);
+}
+
+.Tile[handness="odd"] {
+  background-color: var(--tile-even-color);
+}
+
+.Tile-Icon {
+  z-index: 5;
+  aspect-ratio: 1;
+  height: 10%;
+  position: fixed;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.Tile-Icon[move="None"] {
+  display: none;
+}
+
+.Tile-Icon[move="See"] {
+  background-image: url("../../imgs/move/see.png");
+}
+
+.Tile-Icon[move="Move"],
+.Tile-Icon[move="Add"] {
+  background-image: url("../../imgs/move/move.png");
+}
+
+.Tile-Icon[move="Attack"],
+.Tile-Icon[move="Target"],
+.Tile-Icon[move="Confirm"] {
+  background-image: url("../../imgs/move/attack.png");
+}
+
+.Tile-Icon[move="Passing"] {
+  background-image: url("../../imgs/move/passing.png");
+}

@@ -1,0 +1,31 @@
+/* THEMES */
+.App[theme="Dark"] {
+  --background-color: #131313;
+  --font-color: #fff;
+  --separator-color: rgb(182, 182, 182);
+  --panel-color: rgb(44, 44, 44);
+  --tile-even-color: rgb(214, 214, 214);
+  --tile-odd-color: rgb(98, 113, 177);
+  --red-color: #7e1818;
+  --black-color: #1f1f1f;
+}
+
+/* BASIC ELEMENTS */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button, textarea {
+  font: inherit;
+  border: 0;
+  outline: 0;
+  background-color: inherit;
+  padding: 0;
+	cursor: inherit;
+	outline: inherit;
+}

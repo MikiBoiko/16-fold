@@ -89,7 +89,13 @@ public class Board
         if (!IsInbound(to))
             throw new OutOfBoardPositionException();
 
-        if (_cards.ContainsKey(to))
+        Console.WriteLine(_cards.Keys.Count);
+        foreach (var item in _cards.Keys)
+        {
+            Console.WriteLine(item.ToString());
+        }
+
+        if (_cards.Keys.Contains(to))
             throw new PositionOccupiedException();
 
         CardStack stack = FindCardStack(from);
