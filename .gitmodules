@@ -1,0 +1,9 @@
+[submodule "game-server"]
+	path = game-server
+	url = https://github.com/MikiBoiko/16-fold-game-server
+[submodule "motor"]
+	path = motor
+	url = https://github.com/MikiBoiko/16-fold-motor
+[submodule "client"]
+	path = client
+	url = https://github.com/MikiBoiko/16-fold-client
