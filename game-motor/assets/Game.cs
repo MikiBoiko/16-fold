@@ -188,12 +188,11 @@ public class Game
         Model.Action action = ActionBuilder.Build(actionRequest);
 
         ActionResolution resolution = action.DoAction(turnPlayer, _board);
-        resolution.AllResponse.TimeStamp = DateTime.Now;
         resolution.Request = actionRequest;
 
         if (resolution.GameEndedResponse != null)
             SetGameEnded(resolution.GameEndedResponse);
-        else NextTurn(resolution);
+        else resolution.AllResponse.TimeLeft = NextTurn(resolution);
 
         return resolution;
     }
@@ -205,11 +204,10 @@ public class Game
 
         if (GameEnded)
             throw new GameEndedException();
-            
+
         Decision decision = DecisionBuilder.Build(decisionRequest);
 
         DecisionResolution resolution = decision.DoDecision(players[(int)playerColor], this);
-        resolution.Response.TimeStamp = DateTime.Now;
         resolution.Request = decisionRequest;
 
         return resolution;
@@ -217,13 +215,14 @@ public class Game
     #endregion
 
     #region Class methods
-    public void NextTurn(ActionResolution lastMoveActionResolution)
+    public double NextTurn(ActionResolution lastMoveActionResolution)
     {
-        players[_turn].EndTurn(lastMoveActionResolution);
+        double timeLeft = players[_turn].EndTurn(lastMoveActionResolution);
         _turnCount++;
         _turn++;
         _turn %= 2;
         players[_turn].StartTurn();
+        return timeLeft;
     }
 
     public Player OtherPlayer(Player player) => players[((int)player.color + 1) % 2];
@@ -236,9 +235,8 @@ public class Game
         public int TurnCount { set; get; }
         public GameStartedResponse? StartedResponse { set; get; }
         public GameEndedResponse? EndedResponse { set; get; }
-        public Player.State? RedPlayerState { set; get; }
-        public Player.State? BlackPlayerState { set; get; }
-        public Board.State? BoardState { set; get; }
+        public Player.State[]? PlayerStates { set; get; }
+        public Dictionary<string, Card.CardState?>? BoardState { set; get; }
         public DateTime TimeStamp { get; set; }
         public ActionResponse? LastActionResponse { get; set; }
     }
@@ -251,8 +249,11 @@ public class Game
             TurnCount = _turnCount,
             StartedResponse = _startedResponse ?? null,
             EndedResponse = _endedResponse ?? null,
-            RedPlayerState = players[0].GetState(),
-            BlackPlayerState = players[1].GetState(),
+            PlayerStates = new List<Player.State>
+            {
+                players[0].GetState(),
+                players[1].GetState()
+            }.ToArray(),
             BoardState = _board.GetState(),
             TimeStamp = DateTime.Now,
             LastActionResponse = WaitingPlayer.LastActionResolution == null

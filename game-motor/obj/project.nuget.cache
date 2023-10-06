@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "m0DGlURaF5H0JjsQJkiw+/lYwx+I6hhzbUtGimOmPMNpdcnEODKh/EYeU3fFhD2EfK1qhZnK2/DZRQyHSeQUBA==",
+  "dgSpecHash": "dF95SgjdwfZ/y+S3bjgLFdFv+j0UuucJ/5IHXJor+Ril/PSo9T6G6WzOaulVgC09h6XtrCW9n1Pc26csUbDQaQ==",
   "success": true,
-  "projectFilePath": "/home/miki/projects/16fold/game-motor/game-motor.csproj",
+  "projectFilePath": "/home/miki/Projects/16-fold/game-motor/game-motor.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

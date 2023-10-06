@@ -3,9 +3,9 @@ using Fold.Motor.Resources;
 
 namespace Fold.Motor.Constructors.Builders;
 
-public class DecisionBuilder : Constructors.IBuilder<Model.Decision>
+public class DecisionBuilder : IBuilder<Model.Decision>
 {
-    public readonly static Dictionary<string, Constructors.IFactory<Model.Decision>> Factories = new() {
+    public readonly static Dictionary<string, IFactory<Model.Decision>> Factories = new() {
         { "AddTime", new AddTimeDecisionFactory() },
         { "ReportIllegal", new ReportIllegalDecisionFactory() }
     };

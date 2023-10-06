@@ -12,8 +12,6 @@ public class MoveAction : Action {
 
         _from = from;
         _to = to;
-        Console.WriteLine(_from);
-        Console.WriteLine(_to);
     }
 
     public override ActionResolution DoAction(Player player, Board board) => board.Move(_from, _to);

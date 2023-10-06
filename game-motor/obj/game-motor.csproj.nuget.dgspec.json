@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/miki/projects/16fold/game-motor/game-motor.csproj": {}
+    "/home/miki/Projects/16-fold/game-motor/game-motor.csproj": {}
   },
   "projects": {
-    "/home/miki/projects/16fold/game-motor/game-motor.csproj": {
+    "/home/miki/Projects/16-fold/game-motor/game-motor.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/miki/projects/16fold/game-motor/game-motor.csproj",
+        "projectUniqueName": "/home/miki/Projects/16-fold/game-motor/game-motor.csproj",
         "projectName": "game-motor",
-        "projectPath": "/home/miki/projects/16fold/game-motor/game-motor.csproj",
+        "projectPath": "/home/miki/Projects/16-fold/game-motor/game-motor.csproj",
         "packagesPath": "/home/miki/.nuget/packages/",
-        "outputPath": "/home/miki/projects/16fold/game-motor/obj/",
+        "outputPath": "/home/miki/Projects/16-fold/game-motor/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/miki/.nuget/NuGet/NuGet.Config"
@@ -53,7 +53,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/7.0.306/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/7.0.111/RuntimeIdentifierGraph.json"
         }
       }
     }

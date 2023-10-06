@@ -91,7 +91,7 @@ const Board = () => {
           {["1", "2", "3", "4", "5", "6", "7"].map((row, rowIndex) => {
             return (
               <div key={rowIndex} className="Board-row" colorview={colorView}>
-                {["d", "c", "b", "a"].map((column, columnIndex) => {
+                {["a", "b", "c", "d"].map((column, columnIndex) => {
                   const tile = column + row
                   const card = state != null ? state[tile] : null
                   /*console.log(

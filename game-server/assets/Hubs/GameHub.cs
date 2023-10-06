@@ -4,6 +4,7 @@ using Fold.Motor.Resources.Request;
 using Fold.Motor.Resources.Response;
 using Fold.Server.Resources;
 using Fold.Motor.Resources.Resolution;
+using System.Collections.Concurrent;
 
 namespace Fold.Server.Hubs;
 
@@ -17,7 +18,7 @@ public class GameHub : Hub
 
     #region Player colors
     private static int s_connectedPlayers = 0;
-    private static Dictionary<string, CardColor> s_connectionColors = new();
+    private static ConcurrentDictionary<string, CardColor> s_connectionColors = new();
 
     private CardColor GetColorFromConnectionId()
     {
@@ -52,7 +53,7 @@ public class GameHub : Hub
     #endregion
 
     #region Connection
-    public async Task Connect()
+    public async Task State()
     {
         if (CurrentGame == null)
         {
@@ -60,17 +61,17 @@ public class GameHub : Hub
             return;
         }
 
-        if (s_connectedPlayers == 1)
-            CurrentGame.Start();
-
         CardColor connectionColor = (CardColor)(s_connectedPlayers % 2);
-        s_connectionColors.Add(Context.ConnectionId, connectionColor);
-        await Clients.Caller.SendAsync("RecieveConnected", new ConnectedResource
+        s_connectionColors.TryAdd(Context.ConnectionId, connectionColor);
+        await Clients.Caller.SendAsync("RecieveState", new StateResource
         {
             PlayingColor = connectionColor,
             State = CurrentGame.GetState()
         });
 
+        if (s_connectedPlayers == 1)
+            CurrentGame.Start();
+        
         s_connectedPlayers++;
     }
     #endregion

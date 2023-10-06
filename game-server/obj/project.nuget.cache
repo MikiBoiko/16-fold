@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Q1FtN/VW01Jiqg0hdhf2iIcgvYshrav3hRVAGrWf6GOBuBR/II4ecgMo7oNS4H5fyWhp2XKxdsM7ofMuvH43IQ==",
+  "dgSpecHash": "kNR1n+sRg582iNx4aysmB4Bb8HPaZfXpOAvc7d3espEgAjixhqYPEancBeUjjFkTnLUzqos0DlUlO9Ssbd5sUA==",
   "success": true,
-  "projectFilePath": "/home/miki/projects/16fold/game-server/game-server.csproj",
+  "projectFilePath": "/home/miki/Projects/16-fold/game-server/game-server.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

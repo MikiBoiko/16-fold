@@ -10,3 +10,15 @@
 /home/miki/projects/16fold/game-motor/obj/Debug/net7.0/refint/game-motor.dll
 /home/miki/projects/16fold/game-motor/obj/Debug/net7.0/game-motor.pdb
 /home/miki/projects/16fold/game-motor/obj/Debug/net7.0/ref/game-motor.dll
+/home/miki/Projects/16-fold/game-motor/bin/Debug/net7.0/game-motor.deps.json
+/home/miki/Projects/16-fold/game-motor/bin/Debug/net7.0/game-motor.dll
+/home/miki/Projects/16-fold/game-motor/bin/Debug/net7.0/game-motor.pdb
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.csproj.AssemblyReference.cache
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.GeneratedMSBuildEditorConfig.editorconfig
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.AssemblyInfoInputs.cache
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.AssemblyInfo.cs
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.csproj.CoreCompileInputs.cache
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.dll
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/refint/game-motor.dll
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/game-motor.pdb
+/home/miki/Projects/16-fold/game-motor/obj/Debug/net7.0/ref/game-motor.dll

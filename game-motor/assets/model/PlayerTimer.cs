@@ -19,7 +19,7 @@ public class PlayerTimer
 
         _timer = new System.Timers.Timer(interval);
         _timer.AutoReset = false;
-        _timer.Elapsed += ( sender, e ) => { OnTimeLostEvent?.Invoke(); };
+        _timer.Elapsed += (sender, e) => { OnTimeLostEvent?.Invoke(); };
 
         DueTime = DateTime.Now.AddMilliseconds(interval);
         OnTimeLostEvent += onTimeLostGameResolution;
@@ -39,27 +39,30 @@ public class PlayerTimer
 
     public void Enable()
     {
+        if (_timer.Enabled)
+            throw new TimerEnabledException();
+
         DueTime = DateTime.Now.AddMilliseconds(_timer.Interval);
         _timer.Enabled = true;
     }
 
-    public void Disable() 
+    public double Disable()
     {
-        if(_timer.Enabled)
-        {
-            _timer.Enabled = false;
-            _timer.Interval = TimeLeft + increment;
-        }
+        if (!_timer.Enabled)
+            throw new TimerNotEnabledException();
+
+        _timer.Enabled = false;
+        return _timer.Interval = TimeLeft + increment;
     }
 
-    public void AddTime(double increment) 
+    public void AddTime(double increment)
     {
-        if(_timer.Enabled)
+        if (_timer.Enabled)
         {
             _timer.Enabled = false;
             _timer.Interval = TimeLeft + increment;
         }
-        else 
+        else
         {
             _timer.Interval += increment;
         }
@@ -68,16 +71,14 @@ public class PlayerTimer
     }
 
     #region State
-    public class State
+    public double GetState(bool enabled)
     {
-        public double Interval { set; get; }
+        return enabled ? TimeLeft : interval;
     }
+    #endregion
 
-    public State GetState(bool enabled)
-    {
-        return new State {
-            Interval = enabled ? TimeLeft : interval
-        };
-    }
+    #region Exceptions 
+    public class TimerNotEnabledException : Exception { }
+    public class TimerEnabledException : Exception { }
     #endregion
 }

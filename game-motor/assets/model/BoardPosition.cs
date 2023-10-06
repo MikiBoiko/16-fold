@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace Fold.Motor.Model; 
 
 public sealed class BoardPosition : IEquatable<BoardPosition> {
@@ -12,7 +14,6 @@ public sealed class BoardPosition : IEquatable<BoardPosition> {
 
     #region IEquatable
     public override int GetHashCode() {
-        Console.WriteLine(String.Format("{0}: {1}", _formatedPosition, Board.SIZE_X * y + x));
         return Board.SIZE_X * y + x;
     }
 
