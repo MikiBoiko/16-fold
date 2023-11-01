@@ -1,3 +1,3 @@
 # 16-fold
 
-A full-stack app for my card game called 16 Fold. Made with React Native and C#.
+A full-stack app for my card game called 16 Fold.
