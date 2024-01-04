@@ -6,10 +6,12 @@ const app = require('express')()
 const server = require('http').createServer(app)
 
 const { access } = require('./routes/access')
+const { users } = require('./routes/users')
 
 app.use(require('cors')({ origin: 'http://localhost:8100'}))
 
 app.use('/access', access)
+app.use('/users', users)
 
 const io = require('socket.io')(server, {
     cors: {
