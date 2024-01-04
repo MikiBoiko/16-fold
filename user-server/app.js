@@ -1,16 +1,29 @@
 require('dotenv').config()
-const PORT = process.env.PORT ?? 3001;
+const HOSTNAME = process.env.HOSTNAME ?? 'localhost'
+const PORT = process.env.PORT ?? 3001
 
-const express = require('express')
-const app = express()
+const app = require('express')()
+const server = require('http').createServer(app)
 
-const { signup_router } = require('./routes/signup')
+const { access } = require('./routes/access')
 
-app.use('/sign-up', signup_router)
+app.use(require('cors')({ origin: 'http://localhost:8100'}))
 
-app.listen(PORT, (err) => {
-    if(err)
-    console.log(err)
-    
-    console.log(`Listening on port ${ PORT }`)
+app.use('/access', access)
+
+const io = require('socket.io')(server, {
+    cors: {
+        origin: 'http://localhost:8100' // TODO
+    }
+})
+
+io.on('connection', (socket) => {
+
+})
+
+app.listen(PORT, HOSTNAME, (err) => {
+    if (err)
+        console.log(err)
+
+    console.log(`Listening at ${HOSTNAME}:${PORT}`)
 })

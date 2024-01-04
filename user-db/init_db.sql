@@ -1,4 +1,0 @@
-CREATE DATABASE fold_db;
-CREATE USER user_server WITH ENCRYPTED PASSWORD 'hiThere';
-GRANT CONNECT ON DATABASE fold_db TO user_server;
-GRANT ALL PRIVILEGES ON DATABASE fold_db TO user_server;

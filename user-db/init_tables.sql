@@ -1,22 +1,48 @@
-DROP TABLE users;
-DROP TABLE games;
+/* TODO: SCHEMAS */
+DROP SCHEMA IF EXISTS web CASCADE;
+CREATE SCHEMA web;
 
+ALTER DEFAULT PRIVILEGES GRANT ALL ON TABLES TO user_server;
+GRANT INSERT, UPDATE, SELECT, DELETE
+ON ALL TABLES IN SCHEMA web 
+TO user_server;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA web TO user_server;
+
+/* TABLES */
+DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    username varchar(16) NOT NULL,
-    password varchar(60) NOT NULL,
-    elo NUMERIC(6, 2) NOT NULL
-    email TEXT NOT NULL
+    username VARCHAR(16) NOT NULL,
+    password VARCHAR(60) NOT NULL,
+    elo NUMERIC(6, 2) NOT NULL,
+    gameCount NUMERIC(6),
+    email TEXT NOT NULL,
+    UNIQUE (username)
 );
+GRANT USAGE, SELECT ON SEQUENCE users_id_seq TO user_server;
 
+DROP TABLE IF EXISTS queues;
+CREATE TABLE queues (
+    id SERIAL PRIMARY KEY,
+    userId SERIAL NOT NULL,
+    format VARCHAR(3) NOT NULL
+);
+GRANT USAGE, SELECT ON SEQUENCE queues_id_seq TO user_server;
+
+DROP TABLE IF EXISTS games;
 CREATE TABLE games (
     id SERIAL PRIMARY KEY,
-    red_id SERIAL NOT NULL,
-    black_id SERIAL NOT NULL,
-    status SMALLINT NOT NULL,
-    game_sfgn TEXT,
-    timestamp TIMESTAMPTZ NOT NULL,
-
-    FOREIGN KEY (red_id) REFERENCES users(id),
-    FOREIGN KEY (black_id) REFERENCES users(id),
+    format VARCHAR(3) NOT NULL,
+    redId SERIAL NOT NULL,
+    blackId SERIAL NOT NULL,
+    result NUMERIC(1),
+    way NUMERIC(1),
+    url TEXT,
+    FOREIGN KEY (redId) REFERENCES users(id),
+    FOREIGN KEY (blackId) REFERENCES users(id)
 );
+GRANT USAGE, SELECT ON SEQUENCE games_id_seq TO user_server;
+
+SELECT * FROM users;
+SELECT * FROM games;
+SELECT * FROM queues;
