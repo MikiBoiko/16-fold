@@ -18,11 +18,9 @@ access.post('/', (req, res) => {
     }
 
     try {
-        const user = auth.verifyPrivateToken(token)
-
-        console.log('DECODE:')
-        console.log(user)
-
+        const decoded = auth.verifyPrivateToken(token)
+        const user = decoded.data
+        
         res.json({
             user: user,
             publicToken: auth.signPublicToken(user)
@@ -40,7 +38,7 @@ async function onLogin(username, password) {
 
     console.log(userQueryResult)
 
-    if (rowCount === 0) return false
+    if (rowCount === 0) throw "User not found."
 
     const user = rows[0]
     console.log(user)
@@ -85,14 +83,14 @@ async function onRegister(username, password, email) {
     if (rowCount !== 0)
         throw 'User already exists.'
     else if (username.length < 1 || username.length > 16)
-        throw 'Weird username.'
-    else if (password.length < 8 || password.length > 72)
-        throw 'Weird password.'
+        throw 'Weird username length.'
+    else if (password.length < 8 || password.length > 32)
+        throw 'Weird password length.'
 
     const hashedPassword = await bcrypt.hash(password, SALT)
     console.log(hashedPassword.length)
 
-    await database.query('INSERT INTO users(username, password, elo, gameCount, email) VALUES ($1, $2, 1500, 0, $3)', [username, hashedPassword, email])
+    await database.query("INSERT INTO users(username, password, elo, gameCount, email, connected) VALUES ($1, $2, 1500, 0, $3, 'false')", [username, hashedPassword, email])
 
     return {
         auth: auth.signPrivateToken({ username })
