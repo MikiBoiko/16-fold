@@ -39,4 +39,16 @@ function verifyPublicToken(token) {
     return decoded
 }
 
-module.exports = { signPrivateToken, signPublicToken, verifyPrivateToken, verifyPublicToken }
+function verifyPublicTokenMiddleware(req, res, next) {
+    try {
+        const token = req.headers.auth.split(' ')[1]
+        console.log('public token ', token)
+        req.decodedToken = verifyPublicToken(token)
+        next()
+    }
+    catch (error) {
+        res.status(500).json({ error })
+    }
+}
+
+module.exports = { signPrivateToken, signPublicToken, verifyPrivateToken, verifyPublicToken, verifyPublicTokenMiddleware }

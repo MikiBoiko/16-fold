@@ -15,6 +15,7 @@ const io = new Server(server, { cors })
 
 const { access } = require('./routes/access')
 const { users } = require('./routes/users')
+const { games } = require('./routes/games')
 
 const database = require('./database')
 const auth = require('./auth')
@@ -24,6 +25,7 @@ app.use(require('cors')(cors))
 
 app.use('/access', access)
 app.use('/users', users)
+app.use('/games', games)
 
 //const io = require('socket.io')(server, { cors: cors })
 const gameApi = require('./classes/game')
@@ -41,9 +43,11 @@ io.on('connection', (socket) => {
     if (token === undefined) {
         socket.disconnect()
         sendError("No token for socket connection.")
+        return
     }
 
     let user
+
     try {
         const decoded = auth.verifyPublicToken(token)
 
@@ -53,6 +57,7 @@ io.on('connection', (socket) => {
         console.error(err)
         socket.disconnect()
         sendError("Bad token.")
+        return
     }
 
     database.query("UPDATE users SET connected = 'true' WHERE username = $1;", [user.username])
@@ -73,14 +78,37 @@ io.on('connection', (socket) => {
         const thisUserId = await userApi.getUsernameId(user.username) 
         const otherUserId = await userApi.getUsernameId(username) 
     
-        await gameApi.createGame(format, thisUserId, otherUserId)
+        const result = await gameApi.createGame(format, thisUserId, otherUserId)
+
+        return result
     }
 
-    socket.on('accept-challenge', (username, format) => {
-        acceptChallenge(username, format).then((result) => {
-            console.log('game created', result)
+    socket.on('fetch-games', () => {
+        gameApi.fetchGames(user.username)
+        .then((games) => {
+            socket.emit('fetch-games', games)
+        })
+        .catch((error) => {
+            sendError(error)
+        })
+    })
 
-            
+    socket.on('accept-challenge', (username, format) => {
+        acceptChallenge(username, format).then((tag) => {
+            console.log('game created', tag)
+
+            socket.emit('new-game', {
+                tag,
+                rival: username
+            })
+
+            io.to(username).emit('new-game', {
+                tag,
+                rival: user.username
+            })
+        })
+        .catch((error) => {
+            sendError(error)
         })
     })
 
@@ -91,11 +119,17 @@ io.on('connection', (socket) => {
     });
 })
 
-server.listen(PORT, HOSTNAME, (err) => {
-    if (err)
-        console.log(err)
-
-    database.query("UPDATE users SET connected = 'false';") // TODO: manage all previously connected clients at start
-
-    console.log(`Listening at ${HOSTNAME}:${PORT}`)
+database.query(
+    "UPDATE users SET connected = 'false';" +
+    "CALL setUpGameServers();"
+)
+.then(() => {
+    server.listen(PORT, HOSTNAME, (err) => {
+        if (err)
+            console.log(err)
+        console.log(`Listening at ${HOSTNAME}:${PORT}`)
+    })
+})
+.catch((err) => {
+    console.error(err)
 })
