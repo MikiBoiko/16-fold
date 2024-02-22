@@ -32,17 +32,15 @@ const gameApi = require('./classes/game')
 const userApi = require('./classes/user')
 
 io.on('connection', (socket) => {
-    console.log('connection try')
     const token = socket.handshake.auth.token;
-    console.log(token)
 
     const sendError = (error) => {
         socket.emit("error", error)
     }
 
     if (token === undefined) {
-        socket.disconnect()
         sendError("No token for socket connection.")
+        socket.disconnect()
         return
     }
 
@@ -50,23 +48,20 @@ io.on('connection', (socket) => {
 
     try {
         const decoded = auth.verifyPublicToken(token)
-
         user = decoded.data
     }
     catch (err) {
         console.error(err)
-        socket.disconnect()
         sendError("Bad token.")
+        socket.disconnect()
         return
     }
 
     database.query("UPDATE users SET connected = 'true' WHERE username = $1;", [user.username])
-    console.log('user connected');
 
     socket.join(user.username)
 
     socket.on('send-challenge', (username) => {
-        console.log(username + ' is challenged by ' + user.username)
         io.to(username).emit('new-challenge', { username: user.username, format: '5+5' })
     })
 
@@ -95,16 +90,19 @@ io.on('connection', (socket) => {
 
     socket.on('accept-challenge', (username, format) => {
         acceptChallenge(username, format).then((tag) => {
-            console.log('game created', tag)
+            const game = {
+                tag,
+                format
+            }
 
             socket.emit('new-game', {
-                tag,
-                rival: username
+                ...game,
+                rival: username,
             })
 
             io.to(username).emit('new-game', {
-                tag,
-                rival: user.username
+                ...game,
+                rival: user.username,
             })
         })
         .catch((error) => {
@@ -115,7 +113,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         database.query("UPDATE users SET connected = 'false' WHERE username = $1;", [user.username])
         socket.leave(user.username)
-        console.log('user disconnected');
     });
 })
 

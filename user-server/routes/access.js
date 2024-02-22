@@ -36,12 +36,9 @@ async function onLogin(username, password) {
 
     const { rows, rowCount } = userQueryResult
 
-    console.log(userQueryResult)
-
     if (rowCount === 0) throw "User not found."
 
     const user = rows[0]
-    console.log(user)
     const hashedPassword = user.password
 
     const isMatch = await bcrypt.compare(password, hashedPassword)
@@ -49,22 +46,14 @@ async function onLogin(username, password) {
     if (!isMatch)
         throw 'Wrong user credentials.'
 
-    console.log(auth.signPrivateToken({ username }))
-
     return {
         auth: auth.signPrivateToken({ username })
     }
 }
 
 access.post('/login', (req, res) => {
-    const username = req.body.username
+    const username = req.body.username.toLowerCase()
     const password = req.body.password
-
-    console.log('Login call:')
-    console.log({
-        username,
-        password
-    })
 
     onLogin(username, password)
         .then((response) => {
@@ -76,9 +65,7 @@ access.post('/login', (req, res) => {
 async function onRegister(username, password, email) {
     const userQueryResult = await database.query('SELECT * FROM users WHERE users.username = $1', [username])
 
-    const { rows, rowCount } = userQueryResult
-
-    console.log(userQueryResult)
+    const { rowCount } = userQueryResult
 
     if (rowCount !== 0)
         throw 'User already exists.'
@@ -88,7 +75,6 @@ async function onRegister(username, password, email) {
         throw 'Weird password length.'
 
     const hashedPassword = await bcrypt.hash(password, SALT)
-    console.log(hashedPassword.length)
 
     await database.query("INSERT INTO users(username, password, elo, gameCount, email, connected) VALUES ($1, $2, 1500, 0, $3, 'false')", [username, hashedPassword, email])
 
@@ -98,16 +84,9 @@ async function onRegister(username, password, email) {
 }
 
 access.post('/register', (req, res) => {
-    const username = req.body.username
+    const username = req.body.username.toLowerCase()
     const password = req.body.password
     const email = req.body.email
-
-    console.log('Register call:')
-    console.log({
-        username,
-        password,
-        email
-    })
 
     onRegister(username, password, email)
         .then((response) => {

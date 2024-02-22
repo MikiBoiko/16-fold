@@ -43,29 +43,49 @@ async function fetchTagGame(tag, username) {
 
     const { hostname, port } = serverRows[0]
 
+    const redUsername = await getIdUsername(game.redid)
+    const blackUsername = await getIdUsername(game.blackid)
+
+    console.log({
+        key,
+        hostname,
+        port,
+        redUsername,
+        blackUsername
+    })
+
     return {
         key,
         hostname,
-        port
+        port,
+        redUsername,
+        blackUsername
     }
 }
 
 async function fetchGames(username) {
     const userId = await getUsernameId(username)
-    const { rows } = await database.query('SELECT tag, redId, blackId FROM games WHERE redId = $1 OR blackId = $1;', [userId])
-
+    const { rows } = await database.query('SELECT tag, redId, blackId, format FROM games WHERE redId = $1 OR blackId = $1;', [userId])
     let games = []
     for (let index = 0; index < rows.length; index++) {
         const row = rows[index]
-        const { tag, redId, blackId } = row
+        const { tag, redid, blackid, format } = row
 
-        const rivalId = userId === redId ? blackId : redId
-        const rivalUsername = await getIdUsername(rivalId)
+        const rivalId = userId === redid ? blackid : redid
+        let rivalUsername
+        try {
+            rivalUsername = await getIdUsername(rivalId)
+        }
+        catch (error) {
+            console.error(error)
+        }
 
-        games.push({
-            tag,
-            rival: rivalUsername
-        })
+        if (rivalUsername !== undefined)
+            games.push({
+                tag,
+                rival: rivalUsername,
+                format
+            })
     }
 
     return games

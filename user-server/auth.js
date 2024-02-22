@@ -12,14 +12,11 @@ const signToken = (user, secret) => {
 
 const signPrivateToken = (user) => {
     const token = signToken(user, PRIVATE_SECRET)
-    console.log(PRIVATE_SECRET)
-    console.log(user)
     return token
 }
 
 const signPublicToken = (user) => {
     const token = signToken(user, PUBLIC_SECRET)
-    console.log(token)
     return token
 }
 
@@ -42,7 +39,6 @@ function verifyPublicToken(token) {
 function verifyPublicTokenMiddleware(req, res, next) {
     try {
         const token = req.headers.auth.split(' ')[1]
-        console.log('public token ', token)
         req.decodedToken = verifyPublicToken(token)
         next()
     }
