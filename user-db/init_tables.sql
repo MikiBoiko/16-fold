@@ -64,6 +64,7 @@ CREATE OR REPLACE PROCEDURE setUpGameServers()
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    TRUNCATE games CASCADE;
     TRUNCATE game_servers CASCADE;
     FOR port IN 7500..8000 LOOP
         INSERT INTO game_servers(available, hostname, port) VALUES ('true', 'localhost', port);
